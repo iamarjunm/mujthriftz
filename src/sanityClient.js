@@ -2,11 +2,11 @@ import sanityClient from "@sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 
 export const client = sanityClient({
-  projectId: "d1luwhf2",
-  dataset: "production",
-  apiVersion: "2024-01-01",
-  token: "sk5lmkmudjr9cPzJaKL6FrJKre4ykhEwYhX9oVfQnO5nbCUXDRAmwZskz2YPyRNgqmaK5KU97XK1PFQtgC9uT3vrm2dOkdNhH925sfWCJY6YK4rJo66Y3vJTVHdYlqakhuReoTFfWajy4BXmWMIpyTLORoz9PeZKvKaq8BFOj0uvzjRURElT", // Ensure the token is inside double quotes
-  useCdn: false,
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  dataset: import.meta.env.VITE_SANITY_DATASET,
+  apiVersion: import.meta.env.VITE_SANITY_API_VERSION,
+  token: import.meta.env.VITE_SANITY_TOKEN,
+  useCdn: true,
 });
 
 const builder = imageUrlBuilder(client);
