@@ -10,10 +10,7 @@ const ReportComponent = ({ onClose, reportedItem, reportedItemType = 'listing' }
     contactEmail: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
-
-  // Initialize EmailJS (should be done once in your app, maybe in App.js)
-  // emailjs.init('YOUR_EMAILJS_USER_ID');
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +27,7 @@ const ReportComponent = ({ onClose, reportedItem, reportedItemType = 'listing' }
     try {
       await emailjs.send(
         'service_9toub17', // Replace with your EmailJS service ID
-        'template_83yo7wj', // Replace with your EmailJS template ID
+        'template_83yo7wj',
         {
           reportedItem: reportedItem?.title || reportedItem?.id || 'N/A',
           reportedItemType,
@@ -40,9 +37,8 @@ const ReportComponent = ({ onClose, reportedItem, reportedItemType = 'listing' }
           pageUrl: window.location.href,
           timestamp: new Date().toISOString(),
         },
-        'KnW74zjkGTLX8MjqW' // Replace with your EmailJS public key
+        'KnW74zjkGTLX8MjqW'
       );
-
       setSubmitStatus('success');
       setTimeout(() => onClose(), 2000);
     } catch (error) {
@@ -90,15 +86,8 @@ const ReportComponent = ({ onClose, reportedItem, reportedItemType = 'listing' }
             {reportedItem && (
               <div className="bg-gray-50 p-4 rounded-lg mb-4">
                 <p className="font-medium text-gray-800">
-                  Reporting: <span className="font-normal">{reportedItem.title || `ID: ${reportedItem.id}`}</span>
+                  Reporting Item: <span className="font-normal">{reportedItem.title || `ID: ${reportedItem.id}`}</span>
                 </p>
-                {reportedItemType === 'listing' && reportedItem.images?.[0] && (
-                  <img 
-                    src={reportedItem.images[0]} 
-                    alt="Reported item" 
-                    className="mt-2 h-20 w-20 object-cover rounded"
-                  />
-                )}
               </div>
             )}
 
@@ -194,9 +183,7 @@ const ReportComponent = ({ onClose, reportedItem, reportedItemType = 'listing' }
                         Submitting...
                       </>
                     ) : (
-                      <>
-                        Submit Report
-                      </>
+                      "Submit Report"
                     )}
                   </button>
                 </div>

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
 import useAuth from "../utils/useAuth";
-import { FiHeart, FiShare2, FiMessageSquare } from "react-icons/fi";
-import { RequestButton } from "../components/MessageButton"
+import { FiHeart, FiShare2, FiMessageSquare, FiFlag } from "react-icons/fi";
+import { RequestButton } from "../components/MessageButton";
+import ReportComponent from "../components/ReportComponent"; // Import the ReportComponent
 
 const RequestDetails = () => {
   const { id } = useParams();
@@ -16,6 +17,8 @@ const RequestDetails = () => {
     return JSON.parse(localStorage.getItem("wishlist")) || [];
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showReport, setShowReport] = useState(false); // State for report modal
+
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -179,6 +182,13 @@ const RequestDetails = () => {
                     >
                       <FiShare2 className="w-5 h-5" />
                     </button>
+                    <button
+                      onClick={() => setShowReport(true)}
+                      className="p-2 rounded-full bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-500 transition-colors"
+                      aria-label="Report request"
+                    >
+                      <FiFlag className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
                 
@@ -320,6 +330,13 @@ const RequestDetails = () => {
           </div>
         )}
       </div>
+     {showReport && (
+      <ReportComponent 
+        onClose={() => setShowReport(false)}
+        reportedItem={request}
+        reportedItemType="request"
+      />
+    )}
     </div>
   );
 };
