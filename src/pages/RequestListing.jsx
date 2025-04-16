@@ -4,9 +4,9 @@ import useAuth from "../utils/useAuth";
 import ProductCard from "../components/ProductCard";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
 
-const BorrowListing = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+const RequestListing = () => {
+  const [requests, setRequests] = useState([]);
+  const [filteredRequests, setFilteredRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [wishlist, setWishlist] = useState(() => {
@@ -15,10 +15,10 @@ const BorrowListing = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [sortOption, setSortOption] = useState("newest");
-  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedConditions, setSelectedConditions] = useState([]);
-  const [selectedDurations, setSelectedDurations] = useState([]);
+  const [selectedRequestTypes, setSelectedRequestTypes] = useState([]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
   const { user } = useAuth();
 
   // Available filter options
@@ -35,56 +35,67 @@ const BorrowListing = () => {
     "other"
   ];
 
-  const conditions = ["new", "like-new", "good", "fair", "poor"];
-  const durations = ["hour", "day", "week", "month"];
+  const conditions = ["new", "like-new", "good", "fair", "poor", "any"];
+  const requestTypes = ["buy", "rent"];
+  const priceRanges = [
+    "under-500",
+    "500-1000",
+    "1000-2000",
+    "2000-5000",
+    "5000-10000",
+    "over-10000",
+    "negotiable"
+  ];
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchRequests = async () => {
       try {
         setLoading(true);
-        const query = `*[_type == "productListing" && isAvailable == true && listingType == "lend"]{
+        const query = `*[_type == "requestProduct" && isActive == true]{
           _id,
           title,
           description,
           category,
-          condition,
-          rentalRate,
+          requestType,
+          priceRange,
           productAge,
+          condition,
           images,
           isAnonymous,
           anonymousName,
-          seller->{
+          requestedBy->{
             _id,
             fullName,
             profileImage
           },
+          location,
           tags,
           _createdAt
         }`;
         const data = await client.fetch(query);
-        setProducts(data);
-        setFilteredProducts(data);
+        setRequests(data);
+        setFilteredRequests(data);
       } catch (err) {
-        console.error("Error fetching products:", err);
-        setError("Failed to load products. Please try again.");
+        console.error("Error fetching requests:", err);
+        setError("Failed to load requests. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchRequests();
   }, []);
 
   // Apply filters whenever any filter changes
   useEffect(() => {
-    let results = [...products];
+    let results = [...requests];
 
     // Apply search filter
     if (searchQuery) {
-      results = results.filter(product => 
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (product.tags && product.tags.some(tag => 
+      results = results.filter(request => 
+        request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        request.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (request.tags && request.tags.some(tag => 
           tag.toLowerCase().includes(searchQuery.toLowerCase())
         ))
       );
@@ -92,29 +103,31 @@ const BorrowListing = () => {
 
     // Apply category filter
     if (selectedCategories.length > 0) {
-      results = results.filter(product => 
-        selectedCategories.includes(product.category)
+      results = results.filter(request => 
+        selectedCategories.includes(request.category)
       );
     }
 
     // Apply condition filter
     if (selectedConditions.length > 0) {
-      results = results.filter(product => 
-        selectedConditions.includes(product.condition)
+      results = results.filter(request => 
+        selectedConditions.includes(request.condition)
       );
     }
 
-    // Apply duration filter
-    if (selectedDurations.length > 0) {
-      results = results.filter(product => 
-        product.rentalRate?.duration && selectedDurations.includes(product.rentalRate.duration)
+    // Apply request type filter
+    if (selectedRequestTypes.length > 0) {
+      results = results.filter(request => 
+        selectedRequestTypes.includes(request.requestType)
       );
     }
 
     // Apply price range filter
-    results = results.filter(product => 
-      product.rentalRate?.amount >= priceRange[0] && product.rentalRate?.amount <= priceRange[1]
-    );
+    if (selectedPriceRanges.length > 0) {
+      results = results.filter(request => 
+        selectedPriceRanges.includes(request.priceRange)
+      );
+    }
 
     // Apply sorting
     switch(sortOption) {
@@ -124,46 +137,42 @@ const BorrowListing = () => {
       case "oldest":
         results.sort((a, b) => new Date(a._createdAt) - new Date(b._createdAt));
         break;
-      case "price-low":
-        results.sort((a, b) => (a.rentalRate?.amount || 0) - (b.rentalRate?.amount || 0));
-        break;
-      case "price-high":
-        results.sort((a, b) => (b.rentalRate?.amount || 0) - (a.rentalRate?.amount || 0));
-        break;
       default:
         break;
     }
 
-    setFilteredProducts(results);
-  }, [products, searchQuery, selectedCategories, selectedConditions, selectedDurations, priceRange, sortOption]);
+    setFilteredRequests(results);
+  }, [requests, searchQuery, selectedCategories, selectedConditions, selectedRequestTypes, selectedPriceRanges, sortOption]);
 
-  const toggleWishlist = (productId) => {
-    const updatedWishlist = wishlist.includes(productId)
-      ? wishlist.filter(id => id !== productId)
-      : [...wishlist, productId];
-
+  const toggleWishlist = (requestId) => {
+    const updatedWishlist = wishlist.includes(requestId)
+      ? wishlist.filter(id => id !== requestId)
+      : [...wishlist, requestId];
+    
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
   };
 
   const getProductAge = (productAge) => {
-    if (!productAge) return "New";
+    if (!productAge) return "Any age";
     const { years, months } = productAge;
-    if (years === 0 && months === 0) return "New";
-    if (years === 0) return `${months}mo`;
-    if (months === 0) return `${years}yr`;
-    return `${years}yr ${months}mo`;
+    if (years === 0 && months === 0) return "New only";
+    if (years === 0) return `Max ${months}mo`;
+    if (months === 0) return `Max ${years}yr`;
+    return `Max ${years}yr ${months}mo`;
   };
 
-  const formatRentalRate = (rate) => {
-    if (!rate) return "Rate not specified";
-    const durationMap = {
-      hour: "hr",
-      day: "day",
-      week: "wk",
-      month: "mo"
+  const getPriceRangeLabel = (value) => {
+    const ranges = {
+      "under-500": "Under ₹500",
+      "500-1000": "₹500 - ₹1000",
+      "1000-2000": "₹1000 - ₹2000",
+      "2000-5000": "₹2000 - ₹5000",
+      "5000-10000": "₹5000 - ₹10000",
+      "over-10000": "Over ₹10000",
+      "negotiable": "Negotiable"
     };
-    return `₹${rate.amount?.toLocaleString()}/${durationMap[rate.duration] || rate.duration}`;
+    return ranges[value] || value;
   };
 
   const toggleCategory = (category) => {
@@ -182,11 +191,19 @@ const BorrowListing = () => {
     );
   };
 
-  const toggleDuration = (duration) => {
-    setSelectedDurations(prev => 
-      prev.includes(duration) 
-        ? prev.filter(d => d !== duration) 
-        : [...prev, duration]
+  const toggleRequestType = (type) => {
+    setSelectedRequestTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type) 
+        : [...prev, type]
+    );
+  };
+
+  const togglePriceRange = (range) => {
+    setSelectedPriceRanges(prev => 
+      prev.includes(range) 
+        ? prev.filter(r => r !== range) 
+        : [...prev, range]
     );
   };
 
@@ -194,15 +211,15 @@ const BorrowListing = () => {
     setSearchQuery("");
     setSelectedCategories([]);
     setSelectedConditions([]);
-    setSelectedDurations([]);
-    setPriceRange([0, 1000]);
+    setSelectedRequestTypes([]);
+    setSelectedPriceRanges([]);
     setSortOption("newest");
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
       </div>
     );
   }
@@ -213,7 +230,7 @@ const BorrowListing = () => {
         <div className="text-red-500 text-lg font-medium mb-4">{error}</div>
         <button 
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
         >
           Try Again
         </button>
@@ -225,7 +242,7 @@ const BorrowListing = () => {
     <div className="container mx-auto px-4 py-8 mt-16">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-          🔄 Borrow & Lend
+          🔍 Product Requests
         </h2>
         
         <div className="flex items-center gap-4 w-full md:w-auto">
@@ -234,8 +251,8 @@ const BorrowListing = () => {
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search items..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Search requests..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -257,45 +274,35 @@ const BorrowListing = () => {
       {showFilters && (
         <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Filter Items</h3>
+            <h3 className="text-lg font-semibold">Filter Requests</h3>
             <button 
               onClick={resetFilters}
-              className="text-sm text-green-600 hover:text-green-800"
+              className="text-sm text-indigo-600 hover:text-indigo-800"
             >
               Reset All
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Price Range Filter */}
+            {/* Request Type Filter */}
             <div>
-              <h4 className="font-medium mb-2">Rental Rate (₹)</h4>
-              <div className="flex items-center gap-2 mb-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={priceRange[0]}
-                  onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded"
-                />
-                <span>to</span>
-                <input
-                  type="number"
-                  min={priceRange[0]}
-                  value={priceRange[1]}
-                  onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded"
-                />
+              <h4 className="font-medium mb-2">Request Type</h4>
+              <div className="space-y-2">
+                {requestTypes.map(type => (
+                  <div key={type} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`type-${type}`}
+                      checked={selectedRequestTypes.includes(type)}
+                      onChange={() => toggleRequestType(type)}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`type-${type}`} className="capitalize">
+                      {type === 'buy' ? 'Want to Buy' : 'Want to Rent'}
+                    </label>
+                  </div>
+                ))}
               </div>
-              <input
-                type="range"
-                min="0"
-                max="1000"
-                step="10"
-                value={priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                className="w-full"
-              />
             </div>
 
             {/* Category Filter */}
@@ -333,28 +340,28 @@ const BorrowListing = () => {
                       className="mr-2"
                     />
                     <label htmlFor={`cond-${condition}`} className="capitalize">
-                      {condition.replace('-', ' ')}
+                      {condition === 'any' ? 'Any condition' : condition.replace('-', ' ')}
                     </label>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Rental Duration Filter */}
+            {/* Price Range Filter */}
             <div>
-              <h4 className="font-medium mb-2">Rental Duration</h4>
+              <h4 className="font-medium mb-2">Price Range</h4>
               <div className="space-y-2">
-                {durations.map(duration => (
-                  <div key={duration} className="flex items-center">
+                {priceRanges.map(range => (
+                  <div key={range} className="flex items-center">
                     <input
                       type="checkbox"
-                      id={`dur-${duration}`}
-                      checked={selectedDurations.includes(duration)}
-                      onChange={() => toggleDuration(duration)}
+                      id={`price-${range}`}
+                      checked={selectedPriceRanges.includes(range)}
+                      onChange={() => togglePriceRange(range)}
                       className="mr-2"
                     />
-                    <label htmlFor={`dur-${duration}`} className="capitalize">
-                      {duration.replace('-', ' ')}
+                    <label htmlFor={`price-${range}`}>
+                      {getPriceRangeLabel(range)}
                     </label>
                   </div>
                 ))}
@@ -367,44 +374,42 @@ const BorrowListing = () => {
       {/* Sorting Options */}
       <div className="flex justify-between items-center mb-6">
         <div className="text-sm text-gray-500">
-          Showing {filteredProducts.length} of {products.length} items
+          Showing {filteredRequests.length} of {requests.length} requests
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600">Sort by:</span>
           <select
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value)}
-            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
-            <option value="price-low">Rate: Low to High</option>
-            <option value="price-high">Rate: High to Low</option>
           </select>
         </div>
       </div>
 
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
+      {/* Requests Grid */}
+      {filteredRequests.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {filteredRequests.map((request) => (
             <ProductCard
-              key={product._id}
-              item={product}
-              type="borrow"
-              isInWishlist={wishlist.includes(product._id)}
-              onToggleWishlist={() => toggleWishlist(product._id)}
+              key={request._id}
+              item={request}
+              type="request"
+              isInWishlist={wishlist.includes(request._id)}
+              onToggleWishlist={() => toggleWishlist(request._id)}
               getProductAge={getProductAge}
-              formatRentalRate={formatRentalRate}
+              getPriceRangeLabel={getPriceRangeLabel}
             />
           ))}
         </div>
       ) : (
         <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <div className="text-gray-500 text-lg mb-4">No items match your filters</div>
+          <div className="text-gray-500 text-lg mb-4">No requests match your filters</div>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
             Reset Filters
           </button>
@@ -414,4 +419,4 @@ const BorrowListing = () => {
   );
 };
 
-export default BorrowListing;
+export default RequestListing;
