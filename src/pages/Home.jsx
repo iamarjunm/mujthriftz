@@ -14,13 +14,20 @@ const Home = () => {
   useEffect(() => {
     const fetchTrendingProducts = async () => {
       try {
-        const query = `*[_type == "productListing" && isAvailable == true] | order(_createdAt desc)[0...3]{
+        // Get current date minus 3 days
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+        const isoDate = threeDaysAgo.toISOString();
+  
+        const query = `*[_type == "productListing" && isAvailable == true && _createdAt > $isoDate] | order(_createdAt desc){
           _id,
           title,
           description,
           category,
           condition,
           price,
+          rentalRate,
+          listingType,
           productAge,
           images,
           isAnonymous,
@@ -33,15 +40,18 @@ const Home = () => {
           tags,
           _createdAt
         }`;
-        const data = await client.fetch(query);
-        setTrendingProducts(data);
+        const data = await client.fetch(query, { isoDate });
+        
+        // Shuffle and pick 3 random items
+        const shuffled = [...data].sort(() => 0.5 - Math.random());
+        setTrendingProducts(shuffled.slice(0, 3));
       } catch (err) {
         console.error("Error fetching products:", err);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchTrendingProducts();
   }, []);
 
@@ -152,15 +162,28 @@ const Home = () => {
               className="grid md:grid-cols-3 gap-8"
             >
               {trendingProducts.map((product) => (
-                <motion.div key={product._id} variants={item}>
-                  <ProductCard 
-                    item={product}
-                    type="product"
-                    isInWishlist={false}
-                    onToggleWishlist={() => {}}
-                  />
-                </motion.div>
-              ))}
+  <motion.div key={product._id} variants={item}>
+    <ProductCard 
+      item={product}
+      type={product.listingType === 'lend' ? 'borrow' : 'product'}
+      isInWishlist={false}
+      onToggleWishlist={() => {}}
+      getProductAge={(age) => {
+        if (!age) return "New";
+        const { years, months } = age;
+        if (years === 0 && months === 0) return "New";
+        if (years === 0) return `${months} month${months > 1 ? 's' : ''}`;
+        if (months === 0) return `${years} year${years > 1 ? 's' : ''}`;
+        return `${years} year${years > 1 ? 's' : ''} ${months} month${months > 1 ? 's' : ''}`;
+      }}
+      formatRentalRate={(rate) => {
+        if (!rate) return "Rate not specified";
+        const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
+        return `₹${rate.amount?.toLocaleString()}/${durationMap[rate.duration]}`;
+      }}
+    />
+  </motion.div>
+))}
             </motion.div>
           )}
         </div>

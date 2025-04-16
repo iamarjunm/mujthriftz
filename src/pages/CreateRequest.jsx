@@ -241,7 +241,7 @@ const CreateRequest = () => {
 
       await client.create(doc);
       alert("Request created successfully!");
-      navigate("/requests");
+      navigate("/request");
     } catch (error) {
       console.error("Error creating request:", error);
       alert("Failed to create request");

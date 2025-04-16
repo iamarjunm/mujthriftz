@@ -16,50 +16,58 @@ const ProductCard = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Enhanced price display with animations
-  const getPriceDisplay = () => {
-    switch(type) {
-      case 'borrow':
-        if (item.rentalRate) {
-          const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
-          return (
-            <motion.span 
-              key="borrow-price"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center"
-            >
-              <FaRupeeSign className="mr-0.5" />
-              {item.rentalRate.amount?.toLocaleString()}
-              <span className="text-xs ml-1">/{durationMap[item.rentalRate.duration]}</span>
-            </motion.span>
-          );
-        }
-        return "Rate not specified";
-      case 'request':
+ const getPriceDisplay = () => {
+  switch(type) {
+    case 'borrow':
+      if (item.rentalRate) {
+        const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
         return (
           <motion.span 
-            key="request-price"
+            key="borrow-price"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-          >
-            {getPriceRangeLabel(item.priceRange)}
-          </motion.span>
-        );
-      default:
-        return item.price ? (
-          <motion.span 
-            key="product-price"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center"
+            className="flex items-center text-sm"
           >
             <FaRupeeSign className="mr-0.5" />
-            {item.price.toLocaleString()}
+            {item.rentalRate.amount?.toLocaleString()}
+            <span className="text-xs ml-1">/{durationMap[item.rentalRate.duration]}</span>
+            {item.rentalRate.deposit > 0 && (
+              <span className="text-xs ml-2 text-gray-500">
+                + ₹{item.rentalRate.deposit?.toLocaleString()} deposit
+              </span>
+            )}
           </motion.span>
-        ) : "Price not set";
-    }
-  };
+        );
+      }
+      return "Rate not specified";
+
+    case 'request':
+      return (
+        <motion.span 
+          key="request-price"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center text-sm text-gray-700"
+        >
+          {getPriceRangeLabel(item.priceRange)}
+        </motion.span>
+      );
+
+    default:
+      return item.price ? (
+        <motion.span 
+          key="product-price"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center text-sm"
+        >
+          <FaRupeeSign className="mr-0.5" />
+          {item.price.toLocaleString()}
+        </motion.span>
+      ) : "Price not set";
+  }
+};
+
 
   // Dynamic styling with more visual impact
   const getTypeStyles = () => {

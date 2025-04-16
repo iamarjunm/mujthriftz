@@ -206,32 +206,32 @@ const CreateListing = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       if (!user) {
         alert("Please login to create listing");
         return;
       }
-
+  
       // Get seller reference
       const sellerProfile = await client.fetch(
         `*[_type == "userProfile" && uid == $uid][0]`,
         { uid: user.uid }
       );
-
+  
       if (!sellerProfile) {
         alert("Please complete your profile first");
         navigate("/profile");
         return;
       }
-
+  
       // Ensure slug is unique
       const uniqueSlug = await makeSlugUnique(formData.slug.current);
-
+  
       const doc = {
         _type: "productListing",
         title: formData.title,
-        slug: { current: uniqueSlug }, // Add the slug
+        slug: { current: uniqueSlug },
         description: formData.description,
         category: formData.category,
         condition: formData.condition,
@@ -245,7 +245,7 @@ const CreateListing = () => {
           }
         }),
         productAge: formData.productAge,
-        images: formData.images, // Now includes _key
+        images: formData.images,
         isAnonymous: formData.isAnonymous,
         ...(formData.isAnonymous && formData.anonymousName && { 
           anonymousName: formData.anonymousName 
@@ -264,10 +264,16 @@ const CreateListing = () => {
         ...(formData.tags.length > 0 && { tags: formData.tags }),
         isAvailable: true
       };
-
+  
       await client.create(doc);
       alert("Listing created successfully!");
-      navigate("/products");
+      
+      // Redirect based on listing type
+      if (formData.listingType === "sell") {
+        navigate("/products");
+      } else {
+        navigate("/borrow");
+      }
     } catch (error) {
       console.error("Error creating listing:", error);
       alert("Failed to create listing");
