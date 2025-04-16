@@ -48,7 +48,7 @@ const About = () => {
 
   const milestones = [
     { 
-      year: "2023", 
+      year: "2024", 
       event: "The Frustration", 
       icon: <FaBrain className="text-3xl" />,
       description: "Arjun needed a textbook, Kaushik needed to sell his old one. Neither knew about each other's needs. The spark was born."
