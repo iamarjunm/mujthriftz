@@ -639,7 +639,7 @@ const CreateRequest = () => {
             </div>
           </div>
 
-          {/* Anonymous Request */}
+          {/* Anonymous Request
           <div className="flex flex-col gap-4">
             <label className="flex items-center gap-2">
               <input
@@ -669,7 +669,7 @@ const CreateRequest = () => {
                 />
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <button

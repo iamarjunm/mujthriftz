@@ -222,17 +222,30 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-          ) : (
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                to="/login"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-full font-bold hover:shadow-lg transition-all shadow-purple-200"
-              >
-                Login / Sign Up
-              </Link>
-            </motion.div>
-          )}
-
+                   ) : (
+                    <>
+                      {/* Desktop Login Button */}
+                      <motion.div whileHover={{ scale: 1.05 }} className="hidden md:block">
+                        <Link
+                          to="/login"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-full font-bold hover:shadow-lg transition-all shadow-purple-200"
+                        >
+                          Login / Sign Up
+                        </Link>
+                      </motion.div>
+                  
+                      {/* Mobile Login Button - Simplified */}
+                      <motion.div whileHover={{ scale: 1.05 }} className="md:hidden">
+                        <Link
+                          to="/login"
+                          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                          aria-label="Login"
+                        >
+                          <FiUser className="text-xl" />
+                        </Link>
+                      </motion.div>
+                    </>
+                  )}
           {/* Mobile Menu Button */}
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -265,26 +278,6 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              {user && (
-                <>
-                  <Link
-                    to="/manage-listings" // NEW: Mobile "Manage Listings"
-                    className={`block px-4 py-3 rounded-lg mb-1 ${location.pathname.includes('/manage-listings') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                  >
-                    Manage Listings
-                  </Link>
-                </>
-              )}
-              {user && (
-                <>
-                  <Link
-                    to="/manage-requests" // NEW: Mobile "Manage Listings"
-                    className={`block px-4 py-3 rounded-lg mb-1 ${location.pathname.includes('/manage-listings') ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                  >
-                    Manage Requests
-                  </Link>
-                </>
-              )}
               {!user && (
                 <Link
                   to="/login"

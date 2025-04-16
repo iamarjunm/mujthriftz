@@ -721,7 +721,7 @@ const CreateListing = () => {
             </div>
           </div>
 
-          {/* Anonymous Listing */}
+          {/* Anonymous Listing
           <div className="flex flex-col gap-4">
             <label className="flex items-center gap-2">
               <input
@@ -751,7 +751,7 @@ const CreateListing = () => {
                 />
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <button
