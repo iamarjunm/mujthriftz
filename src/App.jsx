@@ -21,13 +21,15 @@ import TermsOfService from "./pages/TermsOfService";
 import ManageRequests from "./pages/ManageRequests";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
+import ChatPage from "./pages/ChatPage"
+import Inbox from "./pages/Inbox";
 
 const App = () => {
   return (
     <Router>
       <ScrollToTop /> 
       <Navbar />
-      <main>
+      <main className = "pt-10">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -47,6 +49,8 @@ const App = () => {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/inbox" element={<Inbox />} />
+        <Route path="/chat/:productId/:conversationId" element={<ChatPage />} />
         </Routes>
       </main>
       <Footer />

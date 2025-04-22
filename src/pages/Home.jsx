@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiArrowRight, FiSearch, FiHeart, FiClock, FiDollarSign } from "react-icons/fi";
-import { FaRupeeSign, FaLeaf, FaRecycle, FaHandsHelping } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
 import { client, urlFor } from "../sanityClient";
@@ -12,45 +11,38 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTrendingProducts = async () => {
-      try {
-        // Get current date minus 3 days
-        const threeDaysAgo = new Date();
-        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-        const isoDate = threeDaysAgo.toISOString();
-  
-        const query = `*[_type == "productListing" && isAvailable == true && _createdAt > $isoDate] | order(_createdAt desc){
-          _id,
-          title,
-          description,
-          category,
-          condition,
-          price,
-          rentalRate,
-          listingType,
-          productAge,
-          images,
-          isAnonymous,
-          anonymousName,
-          seller->{
-            _id,
-            fullName,
-            profileImage
-          },
-          tags,
-          _createdAt
-        }`;
-        const data = await client.fetch(query, { isoDate });
-        
-        // Shuffle and pick 3 random items
-        const shuffled = [...data].sort(() => 0.5 - Math.random());
-        setTrendingProducts(shuffled.slice(0, 3));
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // In your useEffect hook, replace the fetchTrendingProducts function with:
+const fetchTrendingProducts = async () => {
+  try {
+    const query = `*[_type == "productListing" && isAvailable == true] | order(_createdAt desc)[0...3]{
+      _id,
+      title,
+      description,
+      category,
+      condition,
+      price,
+      rentalRate,
+      listingType,
+      productAge,
+      images,
+      isAnonymous,
+      anonymousName,
+      seller->{
+        _id,
+        fullName,
+        profileImage
+      },
+      tags,
+      _createdAt
+    }`;
+    const data = await client.fetch(query);
+    setTrendingProducts(data);
+  } catch (err) {
+    console.error("Error fetching products:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   
     fetchTrendingProducts();
   }, []);

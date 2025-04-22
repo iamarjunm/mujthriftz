@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
-import useAuth from "../utils/useAuth";
+import {useAuth} from "../Context/AuthContext";
 import slugify from "slugify";
 import { FiUpload, FiX, FiLoader, FiTrash2 } from "react-icons/fi";
 
@@ -17,7 +17,7 @@ const CreateRequest = () => {
     productAge: { years: 0, months: 0 },
     condition: "good",
     images: [],
-    isAnonymous: true,
+    isAnonymous: false,
     anonymousName: "",
     tags: [],
     location: null,

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiTrash2, FiHeart, FiClock, FiUser, FiSearch, FiShoppingBag } from "react-icons/fi";
 import { FaFire, FaRegHeart, FaHeart, FaRupeeSign } from "react-icons/fa";
 import { urlFor } from "../sanityClient";
-import useAuth from "../utils/useAuth";
+import {useAuth} from "../Context/AuthContext";
 import { client } from "../sanityClient";
 
 const Wishlist = () => {

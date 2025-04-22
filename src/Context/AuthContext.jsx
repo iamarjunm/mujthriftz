@@ -30,5 +30,3 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext); // Access the context values
 };
-
-export default AuthContext; // Export the context if needed elsewhere

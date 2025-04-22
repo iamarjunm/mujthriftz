@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiTrash2, FiEdit, FiCheck, FiX, FiLoader, FiPlusCircle } from 'react-icons/fi';
 import { FaRegSadTear, FaSearch } from 'react-icons/fa';
 import { client, urlFor } from '../sanityClient';
-import useAuth from '../utils/useAuth';
+import {useAuth} from "../Context/AuthContext";
 import { toast } from 'react-hot-toast';
 
 const ManageRequests = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
-import useAuth from "../utils/useAuth";
+import {useAuth} from "../Context/AuthContext";
 import { FiHeart, FiShare2, FiFlag } from "react-icons/fi";
 import { MessageButton } from "../components/MessageButton";
 import ReportComponent from "../components/ReportComponent"; // Import the ReportComponent

@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiHeart, FiUser, FiPlusCircle, FiLogOut, FiUserCheck, FiEdit3, FiMenu, FiX, FiList } from "react-icons/fi";
+import { FiHeart, FiUser, FiPlusCircle, FiLogOut, FiUserCheck, FiEdit3, FiMenu, FiX, FiList, FiMessageSquare } from "react-icons/fi";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
-import useAuth from "../utils/useAuth";
+import {useAuth} from "../Context/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0); // New state for unread messages
   const [fullName, setFullName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -18,25 +19,38 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const { user } = useAuth();
 
-  // Fetch user data from Firestore
+  // Fetch user data from Firestore with better error handling
   useEffect(() => {
     const fetchUserData = async () => {
-      if (user) {
+      if (!user?.uid) {
+        setLoading(false);
+        return;
+      }
+
+      try {
         const userDocRef = doc(db, "users", user.uid);
-        try {
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists()) {
-            setFullName(docSnap.data().fullName);
-            setWishlistCount(docSnap.data().wishlist?.length || 0);
+        const docSnap = await getDoc(userDocRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setFullName(data.fullName || null);
+          setWishlistCount(Array.isArray(data.wishlist) ? data.wishlist.length : 0);
+          
+          // Fetch unread message count (you'll need to implement this endpoint)
+          const unreadRes = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}/unread-count`);
+          if (unreadRes.ok) {
+            const unreadData = await unreadRes.json();
+            setUnreadCount(unreadData.count || 0);
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setLoading(false);
+        } else {
+          console.warn("User document doesn't exist");
         }
-      } else {
-        setWishlistCount(0);
-        setFullName(null);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        if (error.code === 'permission-denied') {
+          console.log("User doesn't have permission to access this data");
+        }
+      } finally {
         setLoading(false);
       }
     };
@@ -88,14 +102,22 @@ const Navbar = () => {
       className="fixed top-0 left-0 w-full bg-white bg-opacity-95 border-b border-gray-200 z-50 shadow-sm backdrop-blur-lg"
     >
       <div className="container mx-auto flex justify-between items-center py-3 px-4 sm:px-6">
-        {/* Logo */}
-        <Link to="/" className="flex items-center">
-          <motion.span 
+        <Link to="/" className="flex items-center focus:outline-none min-w-[200px] h-20 overflow-visible">
+          <motion.img
+            src="https://cdn.sanity.io/images/gcb0j4e6/production/f9454f84a8ab73f533ff6bd0972c91a41d06e3c9-1024x1024.png"
+            alt="MUJ Thriftz Logo"
+            className="w-full object-cover"
+            style={{ 
+              height: '80px',
+              maxWidth: '300px',
+              minWidth: '200px',
+              objectPosition: 'center center'
+            }}
             whileHover={{ scale: 1.05 }}
-            className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
-          >
-            MUJ Thriftz
-          </motion.span>
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+            priority
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -122,6 +144,22 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {user && (
             <>
+              {/* Inbox Icon - Only shown when user is logged in */}
+              <motion.div whileHover={{ scale: 1.1 }}>
+                <Link to="/inbox" className="relative group mr-2">
+                  <FiMessageSquare className="text-gray-600 text-2xl transition-colors group-hover:text-blue-600" />
+                  {unreadCount > 0 && (
+                    <motion.span 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                    >
+                      {unreadCount}
+                    </motion.span>
+                  )}
+                </Link>
+              </motion.div>
+
               {/* Wishlist Icon */}
               <motion.div whileHover={{ scale: 1.1 }}>
                 <Link to="/wishlist" className="relative group">
@@ -180,7 +218,20 @@ const Navbar = () => {
                       My Profile
                     </Link>
                     <Link
-                      to="/manage-listings" // NEW: Manage Listings Link
+                      to="/inbox" // Added inbox link to dropdown
+                      className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FiMessageSquare className="mr-3 text-purple-600" />
+                      My Messages
+                      {unreadCount > 0 && (
+                        <span className="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link
+                      to="/manage-listings"
                       className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
@@ -188,7 +239,7 @@ const Navbar = () => {
                       Manage Listings
                     </Link>
                     <Link
-                      to="/manage-requests" // NEW: Manage Listings Link
+                      to="/manage-requests"
                       className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
                     >
@@ -222,30 +273,31 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-                   ) : (
-                    <>
-                      {/* Desktop Login Button */}
-                      <motion.div whileHover={{ scale: 1.05 }} className="hidden md:block">
-                        <Link
-                          to="/login"
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-full font-bold hover:shadow-lg transition-all shadow-purple-200"
-                        >
-                          Login / Sign Up
-                        </Link>
-                      </motion.div>
-                  
-                      {/* Mobile Login Button - Simplified */}
-                      <motion.div whileHover={{ scale: 1.05 }} className="md:hidden">
-                        <Link
-                          to="/login"
-                          className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                          aria-label="Login"
-                        >
-                          <FiUser className="text-xl" />
-                        </Link>
-                      </motion.div>
-                    </>
-                  )}
+          ) : (
+            <>
+              {/* Desktop Login Button */}
+              <motion.div whileHover={{ scale: 1.05 }} className="hidden md:block">
+                <Link
+                  to="/login"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-5 py-2 rounded-full font-bold hover:shadow-lg transition-all shadow-purple-200"
+                >
+                  Login / Sign Up
+                </Link>
+              </motion.div>
+          
+              {/* Mobile Login Button - Simplified */}
+              <motion.div whileHover={{ scale: 1.05 }} className="md:hidden">
+                <Link
+                  to="/login"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                  aria-label="Login"
+                >
+                  <FiUser className="text-xl" />
+                </Link>
+              </motion.div>
+            </>
+          )}
+
           {/* Mobile Menu Button */}
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -278,6 +330,20 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+              {user && (
+                <Link
+                  to="/inbox"
+                  className={`block px-4 py-3 rounded-lg mb-1 flex items-center ${location.pathname === '/inbox' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                >
+                  <FiMessageSquare className="mr-3" />
+                  My Messages
+                  {unreadCount > 0 && (
+                    <span className="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
+              )}
               {!user && (
                 <Link
                   to="/login"

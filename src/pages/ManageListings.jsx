@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiTrash2, FiEdit, FiCheckCircle, FiX, FiLoader, FiShoppingBag } from 'react-icons/fi';
 import { FaRegSadTear, FaFire } from 'react-icons/fa';
 import { client, urlFor } from '../sanityClient';
-import useAuth from '../utils/useAuth';
+import {useAuth} from "../Context/AuthContext";
 import { toast } from 'react-hot-toast';
 
 const ManageListings = () => {

@@ -76,7 +76,6 @@ const ProductCard = ({
         badge: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',
         button: 'bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700',
         ribbon: 'from-purple-500 to-indigo-600',
-        tagIcon: <FaRupeeSign />
       },
       borrow: {
         badge: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',

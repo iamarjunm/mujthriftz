@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../sanityClient";
-import useAuth from "../utils/useAuth";
+import {useAuth} from "../Context/AuthContext";
 import ProductCard from "../components/ProductCard";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
 
