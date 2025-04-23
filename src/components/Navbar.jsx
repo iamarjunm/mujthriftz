@@ -11,7 +11,7 @@ import {useAuth} from "../Context/AuthContext";
 const Navbar = () => {
   const location = useLocation();
   const [wishlistCount, setWishlistCount] = useState(0);
-  const [unreadCount, setUnreadCount] = useState(0); // New state for unread messages
+  const [unreadCount, setUnreadCount] = useState(0);
   const [fullName, setFullName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,7 +19,6 @@ const Navbar = () => {
   const dropdownRef = useRef(null);
   const { user } = useAuth();
 
-  // Fetch user data from Firestore with better error handling
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user?.uid) {
@@ -36,20 +35,14 @@ const Navbar = () => {
           setFullName(data.fullName || null);
           setWishlistCount(Array.isArray(data.wishlist) ? data.wishlist.length : 0);
           
-          // Fetch unread message count (you'll need to implement this endpoint)
           const unreadRes = await fetch(`${import.meta.env.VITE_API_URL}/users/${user.uid}/unread-count`);
           if (unreadRes.ok) {
             const unreadData = await unreadRes.json();
             setUnreadCount(unreadData.count || 0);
           }
-        } else {
-          console.warn("User document doesn't exist");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        if (error.code === 'permission-denied') {
-          console.log("User doesn't have permission to access this data");
-        }
       } finally {
         setLoading(false);
       }
@@ -58,17 +51,14 @@ const Navbar = () => {
     fetchUserData();
   }, [user]);
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      console.log("User logged out successfully");
     } catch (error) {
       console.error("Logout Error:", error);
     }
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -82,7 +72,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
@@ -144,8 +133,8 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {user && (
             <>
-              {/* Inbox Icon - Only shown when user is logged in */}
-              <motion.div whileHover={{ scale: 1.1 }}>
+              {/* Inbox Icon - Only shown on desktop */}
+              <motion.div whileHover={{ scale: 1.1 }} className="hidden md:block">
                 <Link to="/inbox" className="relative group mr-2">
                   <FiMessageSquare className="text-gray-600 text-2xl transition-colors group-hover:text-blue-600" />
                   {unreadCount > 0 && (
@@ -160,7 +149,7 @@ const Navbar = () => {
                 </Link>
               </motion.div>
 
-              {/* Wishlist Icon */}
+              {/* Wishlist Icon - Visible on all devices */}
               <motion.div whileHover={{ scale: 1.1 }}>
                 <Link to="/wishlist" className="relative group">
                   <FiHeart className="text-gray-600 text-2xl transition-colors group-hover:text-red-600" />
@@ -218,19 +207,6 @@ const Navbar = () => {
                       My Profile
                     </Link>
                     <Link
-                      to="/inbox" // Added inbox link to dropdown
-                      className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
-                      onClick={() => setIsDropdownOpen(false)}
-                    >
-                      <FiMessageSquare className="mr-3 text-purple-600" />
-                      My Messages
-                      {unreadCount > 0 && (
-                        <span className="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </Link>
-                    <Link
                       to="/manage-listings"
                       className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
                       onClick={() => setIsDropdownOpen(false)}
@@ -275,7 +251,6 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              {/* Desktop Login Button */}
               <motion.div whileHover={{ scale: 1.05 }} className="hidden md:block">
                 <Link
                   to="/login"
@@ -285,7 +260,6 @@ const Navbar = () => {
                 </Link>
               </motion.div>
           
-              {/* Mobile Login Button - Simplified */}
               <motion.div whileHover={{ scale: 1.05 }} className="md:hidden">
                 <Link
                   to="/login"
@@ -310,8 +284,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
+       {/* Mobile Menu */}
+       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
