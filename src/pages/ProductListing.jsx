@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { client } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import ProductCard from "../components/ProductCard";
-import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
+import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch, FiPlus } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const ProductListing = () => {
   const [products, setProducts] = useState([]);
@@ -19,6 +20,7 @@ const ProductListing = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedConditions, setSelectedConditions] = useState([]);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Available filter options
   const categories = [
@@ -211,6 +213,15 @@ const ProductListing = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+          {/* Create Listing Button */}
+          <button
+            onClick={() => navigate('/create-listing')}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition"
+          >
+            <FiPlus />
+            <span className="hidden sm:inline">Create Listing</span>
+          </button>
 
           {/* Filter Button */}
           <button
