@@ -5,9 +5,22 @@ import {useAuth} from "../Context/AuthContext";
 import slugify from "slugify";
 import { FiUpload, FiX, FiLoader, FiTrash2 } from "react-icons/fi";
 
+
+
 const CreateListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  // If user is not logged in, don't render the form
+  if (!user) {
+    return null; // or a loading spinner if you prefer
+  }
   const [formData, setFormData] = useState({
     title: "",
     description: "",
