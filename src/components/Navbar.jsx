@@ -93,7 +93,7 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center py-3 px-4 sm:px-6">
         <Link to="/" className="flex items-center focus:outline-none min-w-[200px] h-20 overflow-visible">
           <motion.img
-            src="https://cdn.sanity.io/images/gcb0j4e6/production/f9454f84a8ab73f533ff6bd0972c91a41d06e3c9-1024x1024.png"
+            src="https://cdn.sanity.io/images/gcb0j4e6/production/8be522aefa72638cc3ed9934a6c105e756b1868d-1500x1500.png"
             alt="MUJ Thriftz Logo"
             className="w-full object-cover"
             style={{ 
