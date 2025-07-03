@@ -23,6 +23,7 @@ const ProductListing = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortOption, setSortOption] = useState("newest");
   const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [maxPrice, setMaxPrice] = useState(10000);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedConditions, setSelectedConditions] = useState([]);
   const { user } = useAuth();
@@ -70,6 +71,11 @@ const ProductListing = () => {
         const data = await client.fetch(query);
         setProducts(data);
         setFilteredProducts(data);
+        // Set max price dynamically
+        const prices = data.map(p => p.price || 0);
+        const max = prices.length > 0 ? Math.max(...prices) : 10000;
+        setMaxPrice(max);
+        setPriceRange([0, max]);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError("Failed to load products. Please try again.");
@@ -174,7 +180,7 @@ const ProductListing = () => {
     setSearchQuery("");
     setSelectedCategories([]);
     setSelectedConditions([]);
-    setPriceRange([0, 10000]);
+    setPriceRange([0, maxPrice]);
     setSortOption("newest");
   };
 
@@ -210,19 +216,62 @@ const ProductListing = () => {
         illustration="product"
       />
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-2 sm:px-4 py-8">
-        <FiltersSidebar
-          categories={categories}
-          selectedCategories={selectedCategories}
-          onToggleCategory={toggleCategory}
-          conditions={conditions}
-          selectedConditions={selectedConditions}
-          onToggleCondition={toggleCondition}
-          priceRange={priceRange}
-          setPriceRange={setPriceRange}
-          resetFilters={resetFilters}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-        />
+        {/* Mobile Filters Button */}
+        <div className="md:hidden mb-4 flex justify-between items-center">
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold shadow hover:bg-purple-700 transition"
+            onClick={() => setShowFilters(true)}
+            aria-label="Show Filters"
+          >
+            <FiFilter className="text-lg" /> Filters
+          </button>
+          <span className="text-sm text-gray-500">{filteredProducts.length} results</span>
+        </div>
+        {/* Filters Sidebar (desktop) */}
+        <div className="hidden md:block">
+          <FiltersSidebar
+            categories={categories}
+            selectedCategories={selectedCategories}
+            onToggleCategory={toggleCategory}
+            conditions={conditions}
+            selectedConditions={selectedConditions}
+            onToggleCondition={toggleCondition}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            resetFilters={resetFilters}
+            showFilters={true}
+            setShowFilters={setShowFilters}
+            maxPrice={maxPrice}
+          />
+        </div>
+        {/* Filters Overlay (mobile) */}
+        {showFilters && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 md:hidden">
+            <div className="relative w-full max-w-xs bg-white rounded-2xl shadow-2xl p-4 border border-gray-100 mx-2">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-purple-600 p-2"
+                onClick={() => setShowFilters(false)}
+                aria-label="Close Filters"
+              >
+                <FiX className="text-xl" />
+              </button>
+              <FiltersSidebar
+                categories={categories}
+                selectedCategories={selectedCategories}
+                onToggleCategory={toggleCategory}
+                conditions={conditions}
+                selectedConditions={selectedConditions}
+                onToggleCondition={toggleCondition}
+                priceRange={priceRange}
+                setPriceRange={setPriceRange}
+                resetFilters={resetFilters}
+                showFilters={true}
+                setShowFilters={setShowFilters}
+                maxPrice={maxPrice}
+              />
+            </div>
+          </div>
+        )}
         <main className="flex-1 min-w-0">
           <SortSearchBar
             searchQuery={searchQuery}

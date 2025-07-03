@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { client } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import ProductCard from "../components/ProductCard";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiFilter, FiX } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import HeroSection from '../components/HeroSection';
 import FiltersSidebar from '../components/FiltersSidebar';
@@ -149,20 +149,62 @@ const RoommateFinder = () => {
         colorTheme="teal-green"
       />
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-2 sm:px-4 py-8">
-        <FiltersSidebar
-          genderOptions={["male", "female", "any"]}
-          selectedGender={selectedGender}
-          onSelectGender={setSelectedGender}
-          budgetRange={budgetRange}
-          setBudgetRange={setBudgetRange}
-          accommodationOptions={["flat-apartment", "pg", "college-hostel"]}
-          selectedAccommodation={selectedAccommodation}
-          onSelectAccommodation={setSelectedAccommodation}
-          resetFilters={resetFilters}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          colorTheme="teal-green"
-        />
+        {/* Mobile Filters Button */}
+        <div className="md:hidden mb-4 flex justify-between items-center">
+          <button
+            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg font-semibold shadow hover:bg-teal-700 transition"
+            onClick={() => setShowFilters(true)}
+            aria-label="Show Filters"
+          >
+            <FiFilter className="text-lg" /> Filters
+          </button>
+          <span className="text-sm text-gray-500">{filteredRequests.length} results</span>
+        </div>
+        {/* Filters Sidebar (desktop) */}
+        <div className="hidden md:block">
+          <FiltersSidebar
+            genderOptions={["male", "female", "any"]}
+            selectedGender={selectedGender}
+            onSelectGender={setSelectedGender}
+            budgetRange={budgetRange}
+            setBudgetRange={setBudgetRange}
+            accommodationOptions={["flat-apartment", "pg", "college-hostel"]}
+            selectedAccommodation={selectedAccommodation}
+            onSelectAccommodation={setSelectedAccommodation}
+            resetFilters={resetFilters}
+            showFilters={true}
+            setShowFilters={setShowFilters}
+            colorTheme="teal-green"
+          />
+        </div>
+        {/* Filters Overlay (mobile) */}
+        {showFilters && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 md:hidden">
+            <div className="relative w-full max-w-xs bg-white rounded-2xl shadow-2xl p-4 border border-gray-100 mx-2">
+              <button
+                className="absolute top-2 right-2 text-gray-500 hover:text-teal-600 p-2"
+                onClick={() => setShowFilters(false)}
+                aria-label="Close Filters"
+              >
+                <FiX className="text-xl" />
+              </button>
+              <FiltersSidebar
+                genderOptions={["male", "female", "any"]}
+                selectedGender={selectedGender}
+                onSelectGender={setSelectedGender}
+                budgetRange={budgetRange}
+                setBudgetRange={setBudgetRange}
+                accommodationOptions={["flat-apartment", "pg", "college-hostel"]}
+                selectedAccommodation={selectedAccommodation}
+                onSelectAccommodation={setSelectedAccommodation}
+                resetFilters={resetFilters}
+                showFilters={true}
+                setShowFilters={setShowFilters}
+                colorTheme="teal-green"
+              />
+            </div>
+          </div>
+        )}
         <main className="flex-1 min-w-0">
           <SortSearchBar
             searchQuery={searchQuery}

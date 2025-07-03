@@ -15,10 +15,9 @@ import CreateListing from "./pages/CreateListing";
 import Profile from "./pages/Profile";
 import CreateRequest from "./pages/CreateRequest";
 import RequestDetails from "./pages/RequestDetails";
-import ManageListings from "./pages/ManageListings";
+import ManageAll from "./pages/ManageAll";
 import About from "./pages/About";
 import TermsOfService from "./pages/TermsOfService";
-import ManageRequests from "./pages/ManageRequests";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 import ChatPage from "./pages/ChatPage"
@@ -53,8 +52,8 @@ const App = () => {
           <Route path="/create-listing" element={<CreateListing />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/create-request" element={<CreateRequest />} />
-          <Route path="/manage-listings" element={<ManageListings />} />
-          <Route path="/manage-requests" element={<ManageRequests />} />
+          <Route path="/manage-listings" element={<ManageAll />} />
+          <Route path="/manage-requests" element={<ManageAll />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -28,7 +28,8 @@ const FiltersSidebar = ({
   selectedAccommodation = "",
   onSelectAccommodation = () => {},
   budgetRange = [0, 20000],
-  setBudgetRange = () => {}
+  setBudgetRange = () => {},
+  maxPrice = 10000
 }) => {
   // Only show on desktop or if showFilters is true
   return (
@@ -131,6 +132,7 @@ const FiltersSidebar = ({
               <input
                 type="number"
                 min="0"
+                max={maxPrice}
                 value={priceRange[0]}
                 onChange={e => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
                 className="w-20 px-2 py-1 border border-gray-300 rounded"
@@ -139,6 +141,7 @@ const FiltersSidebar = ({
               <input
                 type="number"
                 min={priceRange[0]}
+                max={maxPrice}
                 value={priceRange[1]}
                 onChange={e => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])}
                 className="w-20 px-2 py-1 border border-gray-300 rounded"
@@ -147,7 +150,7 @@ const FiltersSidebar = ({
             <input
               type="range"
               min="0"
-              max="10000"
+              max={maxPrice}
               step="100"
               value={priceRange[1]}
               onChange={e => setPriceRange([priceRange[0], parseInt(e.target.value)])}
