@@ -462,7 +462,6 @@ const Home = () => {
                 gradient: "from-purple-100 to-indigo-100",
                 link: "/products",
                 action: "Browse",
-                count: "500+ items"
               },
               { 
                 icon: <FiTool />, 
@@ -472,7 +471,6 @@ const Home = () => {
                 gradient: "from-blue-100 to-cyan-100",
                 link: "/products",
                 action: "Browse",
-                count: "200+ items"
               },
               { 
                 icon: <FiHome />, 
@@ -482,7 +480,6 @@ const Home = () => {
                 gradient: "from-green-100 to-teal-100",
                 link: "/create-request",
                 action: "Create Request",
-                count: "50+ requests"
               }
             ].map((category, index) => (
               <motion.div 
@@ -511,7 +508,6 @@ const Home = () => {
                         </motion.div>
                         <h3 className="text-2xl font-bold text-gray-800 mb-2 mt-2">{category.name}</h3>
                         <p className="text-gray-600 mb-4 min-h-[2.5rem]">{category.desc}</p>
-                        <div className="text-sm text-purple-500 font-medium mb-2">{category.count}</div>
                       </div>
                     </div>
                     <div className="px-8 pb-8 flex justify-center">
