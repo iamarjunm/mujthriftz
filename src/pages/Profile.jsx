@@ -4,6 +4,8 @@ import { updateProfile } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { client } from '../sanityClient';
 import imageUrlBuilder from '@sanity/image-url';
+import { FiDollarSign, FiGift, FiInfo } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const builder = imageUrlBuilder(client);
 const urlFor = (source) => builder.image(source);
@@ -19,6 +21,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [user, setUser] = useState(null);
+  const [coinBalance, setCoinBalance] = useState(0);
 
   const DEFAULT_PROFILE_IMAGE = 'https://www.gravatar.com/avatar/?d=mp&s=200';
 
@@ -27,6 +30,7 @@ const Profile = () => {
       if (currentUser) {
         setUser(currentUser);
         await fetchUserProfile(currentUser.uid);
+        setCoinBalance(120);
       }
     });
     return () => unsubscribe();
@@ -220,14 +224,33 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl bg-white/70 backdrop-blur-lg rounded-xl shadow-lg p-8 border border-gray-200">
-        <h2 className="text-4xl font-extrabold text-purple-700 text-center mb-6">
-          👤 Your Profile
-        </h2>
+    <div className="min-h-screen w-full bg-gradient-to-br from-purple-50 via-blue-50 to-gray-100 flex items-center justify-center p-2 md:p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, type: 'spring', bounce: 0.2 }}
+        className="w-full max-w-4xl bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-0 md:p-12 border border-gray-200 flex flex-col gap-8"
+      >
+        <motion.h2
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.7 }}
+          className="text-4xl md:text-5xl font-extrabold text-purple-700 text-center mb-2 mt-10 md:mt-0 drop-shadow-lg"
+        >
+          👤 My Profile
+        </motion.h2>
 
-        <div className="flex justify-center mb-6">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-300 shadow-lg relative">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.7, type: 'spring' }}
+          className="flex justify-center mb-6"
+        >
+          <motion.div
+            whileHover={{ scale: 1.08, rotate: 2 }}
+            className="w-36 h-36 rounded-full overflow-hidden border-4 border-purple-400 shadow-xl relative bg-white"
+            style={{ transition: 'box-shadow 0.3s' }}
+          >
             <img
               src={getProfileImageUrl()}
               alt="Profile"
@@ -247,19 +270,24 @@ const Profile = () => {
                 />
               </label>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
+          className="space-y-8 w-full"
+        >
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-purple-700">{user?.email}</h3>
+            <h3 className="text-2xl font-bold text-purple-700 break-all">{user?.email}</h3>
             <p className="text-gray-600">
               {user?.emailVerified ? '✅ Verified' : '❌ Not Verified'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-purple-50 p-4 rounded-lg shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-purple-50 p-6 rounded-xl shadow-sm">
               <h4 className="text-lg font-semibold text-purple-700 mb-2">
                 📛 Full Name
               </h4>
@@ -277,7 +305,7 @@ const Profile = () => {
               )}
             </div>
 
-            <div className="bg-purple-50 p-4 rounded-lg shadow-sm">
+            <div className="bg-purple-50 p-6 rounded-xl shadow-sm">
               <h4 className="text-lg font-semibold text-purple-700 mb-2">
                 📞 Phone Number
               </h4>
@@ -296,42 +324,50 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="flex justify-center space-x-4 mt-6">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
             {isEditing ? (
               <>
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleSave}
                   disabled={loading}
-                  className={`${loading ? 'bg-green-700' : 'bg-green-600'} text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition`}
+                  className={`${loading ? 'bg-green-700' : 'bg-green-600'} text-white py-3 px-8 rounded-lg font-semibold hover:bg-green-700 transition text-lg shadow`}
                 >
-                  {loading ? '⏳ Saving...' : '💾 Save'}
-                </button>
-                <button
+                  {loading ? 'Saving...' : 'Save'}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition"
+                  className="bg-gray-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-gray-700 transition text-lg shadow"
                 >
-                  ❌ Cancel
-                </button>
+                  Cancel
+                </motion.button>
               </>
             ) : (
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsEditing(true)}
-                className="bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition"
+                className="bg-blue-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-blue-700 transition text-lg shadow"
               >
-                ✏️ Edit Profile
-              </button>
+                Edit Profile
+              </motion.button>
             )}
           </div>
 
           {message.text && (
-            <p className={`text-center mt-4 text-lg font-semibold ${
-              message.type === 'success' ? 'text-green-600' : 'text-red-600'
-            }`}>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className={`text-center mt-4 text-lg font-semibold ${
+                message.type === 'success' ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
               {message.text}
-            </p>
+            </motion.p>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

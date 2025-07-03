@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiHeart, FiUser, FiPlusCircle, FiLogOut, FiUserCheck, FiEdit3, FiMenu, FiX, FiList, FiMessageSquare } from "react-icons/fi";
+import { FiHeart, FiUser, FiPlusCircle, FiLogOut, FiUserCheck, FiEdit3, FiMenu, FiX, FiList, FiMessageSquare, FiDollarSign } from "react-icons/fi";
 import { db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
@@ -134,14 +134,15 @@ const Navbar = () => {
           {user && (
             <>
               {/* Inbox Icon - Only shown on desktop */}
-              <motion.div whileHover={{ scale: 1.1 }} className="hidden md:block">
-                <Link to="/inbox" className="relative group mr-2">
-                  <FiMessageSquare className="text-gray-600 text-2xl transition-colors group-hover:text-blue-600" />
+              <motion.div whileHover={{ scale: 1.1 }} className="hidden md:flex items-center justify-center relative align-middle">
+                <Link to="/inbox" className="relative flex items-center justify-center group mr-2 h-10 w-10">
+                  <FiMessageSquare className="text-gray-600 text-2xl transition-colors group-hover:text-blue-600 mx-auto my-auto" />
                   {unreadCount > 0 && (
                     <motion.span 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                      className="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] min-h-[20px]"
+                      style={{ lineHeight: '1', fontSize: '0.75rem' }}
                     >
                       {unreadCount}
                     </motion.span>
@@ -205,6 +206,14 @@ const Navbar = () => {
                     >
                       <FiUserCheck className="mr-3 text-purple-600" />
                       My Profile
+                    </Link>
+                    <Link
+                      to="/wallet"
+                      className="flex items-center px-4 py-3 hover:bg-purple-50 text-gray-700 transition-colors"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <FiDollarSign className="mr-3 text-green-600" />
+                      Wallet
                     </Link>
                     <Link
                       to="/manage-listings"
@@ -307,12 +316,12 @@ const Navbar = () => {
               {user && (
                 <Link
                   to="/inbox"
-                  className={`block px-4 py-3 rounded-lg mb-1 flex items-center ${location.pathname === '/inbox' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
+                  className={`block px-4 py-3 rounded-lg mb-1 flex items-center relative ${location.pathname === '/inbox' ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
-                  <FiMessageSquare className="mr-3" />
+                  <span className="flex items-center justify-center h-6 w-6"><FiMessageSquare className="mr-3 text-xl" /></span>
                   My Messages
                   {unreadCount > 0 && (
-                    <span className="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className="ml-auto bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center justify-center min-w-[20px] min-h-[20px]" style={{ lineHeight: '1', fontSize: '0.75rem' }}>
                       {unreadCount}
                     </span>
                   )}

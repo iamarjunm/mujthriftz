@@ -23,6 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 import ChatPage from "./pages/ChatPage"
 import Inbox from "./pages/Inbox";
+import Wallet from "./pages/Wallet";
 
 const App = () => {
   return (
@@ -50,7 +51,8 @@ const App = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/inbox" element={<Inbox />} />
-        <Route path="/chat/:productId/:conversationId" element={<ChatPage />} />
+          <Route path="/wallet" element={<Wallet />} />
+          <Route path="/chat/:productId/:conversationId" element={<ChatPage />} />
         </Routes>
       </main>
       <Footer />

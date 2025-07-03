@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
-import { FiHeart, FiShare2, FiFlag } from "react-icons/fi";
+import { FiHeart, FiShare2, FiFlag, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { MessageButton } from "../components/MessageButton";
-import ReportComponent from "../components/ReportComponent"; // Import the ReportComponent
+import ReportComponent from "../components/ReportComponent";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -16,7 +17,9 @@ const ProductDetails = () => {
     return JSON.parse(localStorage.getItem("wishlist")) || [];
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showReport, setShowReport] = useState(false); // State for report modal
+  const [showReport, setShowReport] = useState(false);
+  const [zoomModalOpen, setZoomModalOpen] = useState(false);
+  const [zoomImageIdx, setZoomImageIdx] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -141,7 +144,8 @@ const ProductDetails = () => {
               <img
                 src={urlFor(product.images[currentImageIndex]).width(800).url()}
                 alt={product.title}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain cursor-zoom-in"
+                onClick={() => { setZoomModalOpen(true); setZoomImageIdx(currentImageIndex); }}
               />
               
               {/* Action buttons */}
@@ -301,6 +305,59 @@ const ProductDetails = () => {
           </div>
         )}
       </div>
+
+      {/* Zoom Modal */}
+      <AnimatePresence>
+        {zoomModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setZoomModalOpen(false)}
+          >
+            <motion.div
+              className="relative max-w-3xl w-full mx-4"
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <img
+                src={urlFor(product.images[zoomImageIdx]).width(1200).url()}
+                alt={product.title}
+                className="w-full max-h-[80vh] object-contain rounded-xl shadow-2xl bg-white"
+              />
+              <button
+                className="absolute top-4 right-4 bg-black/60 text-white rounded-full p-2 hover:bg-black/80 transition"
+                onClick={() => setZoomModalOpen(false)}
+                aria-label="Close"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+              {product.images.length > 1 && (
+                <>
+                  <button
+                    className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 hover:bg-black/80 transition"
+                    onClick={() => setZoomImageIdx((zoomImageIdx - 1 + product.images.length) % product.images.length)}
+                    aria-label="Previous"
+                  >
+                    <FiChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/60 text-white rounded-full p-2 hover:bg-black/80 transition"
+                    onClick={() => setZoomImageIdx((zoomImageIdx + 1) % product.images.length)}
+                    aria-label="Next"
+                  >
+                    <FiChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Report Component */}
       {showReport && (
