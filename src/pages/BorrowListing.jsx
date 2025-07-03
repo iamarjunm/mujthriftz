@@ -3,6 +3,13 @@ import { client } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import ProductCard from "../components/ProductCard";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import HeroSection from '../components/HeroSection';
+import FiltersSidebar from '../components/FiltersSidebar';
+import SortSearchBar from '../components/SortSearchBar';
+import ActiveFiltersChips from '../components/ActiveFiltersChips';
+import ProductGrid from '../components/ProductGrid';
+import EmptyState from '../components/EmptyState';
 
 const BorrowListing = () => {
   const [products, setProducts] = useState([]);
@@ -199,6 +206,8 @@ const BorrowListing = () => {
     setSortOption("newest");
   };
 
+  const filtersApplied = selectedCategories.length > 0 || selectedConditions.length > 0 || selectedDurations.length > 0 || searchQuery || priceRange[0] !== 0 || priceRange[1] !== 1000;
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -222,194 +231,67 @@ const BorrowListing = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-          🔄 Borrow & Lend
-        </h2>
-        
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          {/* Search Bar */}
-          <div className="relative flex-grow md:w-64">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search items..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {/* Filter Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition"
-          >
-            <FiFilter />
-            <span className="hidden sm:inline">Filters</span>
-            {showFilters ? <FiChevronUp /> : <FiChevronDown />}
-          </button>
-        </div>
-      </div>
-
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Filter Items</h3>
-            <button 
-              onClick={resetFilters}
-              className="text-sm text-green-600 hover:text-green-800"
-            >
-              Reset All
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Price Range Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Rental Rate (₹)</h4>
-              <div className="flex items-center gap-2 mb-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={priceRange[0]}
-                  onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded"
-                />
-                <span>to</span>
-                <input
-                  type="number"
-                  min={priceRange[0]}
-                  value={priceRange[1]}
-                  onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 0])}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded"
-                />
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="1000"
-                step="10"
-                value={priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                className="w-full"
-              />
-            </div>
-
-            {/* Category Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Categories</h4>
-              <div className="space-y-2">
-                {categories.map(category => (
-                  <div key={category} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`cat-${category}`}
-                      checked={selectedCategories.includes(category)}
-                      onChange={() => toggleCategory(category)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`cat-${category}`} className="capitalize">
-                      {category.replace('-', ' ')}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Condition Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Condition</h4>
-              <div className="space-y-2">
-                {conditions.map(condition => (
-                  <div key={condition} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`cond-${condition}`}
-                      checked={selectedConditions.includes(condition)}
-                      onChange={() => toggleCondition(condition)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`cond-${condition}`} className="capitalize">
-                      {condition.replace('-', ' ')}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Rental Duration Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Rental Duration</h4>
-              <div className="space-y-2">
-                {durations.map(duration => (
-                  <div key={duration} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`dur-${duration}`}
-                      checked={selectedDurations.includes(duration)}
-                      onChange={() => toggleDuration(duration)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`dur-${duration}`} className="capitalize">
-                      {duration.replace('-', ' ')}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sorting Options */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-500">
-          Showing {filteredProducts.length} of {products.length} items
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Sort by:</span>
-          <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price-low">Rate: Low to High</option>
-            <option value="price-high">Rate: High to Low</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product._id}
-              item={product}
-              type="borrow"
-              isInWishlist={wishlist.includes(product._id)}
-              onToggleWishlist={() => toggleWishlist(product._id)}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <HeroSection
+        title="Products for Borrow"
+        subtitle="Borrow textbooks, electronics, and more from fellow MUJ students for short or long term!"
+        ctaText="Create Listing"
+        ctaLink="/create-listing"
+        illustration="borrow"
+      />
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-2 sm:px-4 py-8">
+        <FiltersSidebar
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onToggleCategory={toggleCategory}
+          conditions={conditions}
+          selectedConditions={selectedConditions}
+          onToggleCondition={toggleCondition}
+          durations={durations}
+          selectedDurations={selectedDurations}
+          onToggleDuration={toggleDuration}
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          resetFilters={resetFilters}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+        />
+        <main className="flex-1 min-w-0">
+          <SortSearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+            resultCount={filteredProducts.length}
+          />
+          <ActiveFiltersChips
+            selectedCategories={selectedCategories}
+            selectedConditions={selectedConditions}
+            selectedDurations={selectedDurations}
+            priceRange={priceRange}
+            onRemoveCategory={toggleCategory}
+            onRemoveCondition={toggleCondition}
+            onRemoveDuration={toggleDuration}
+            onReset={resetFilters}
+          />
+          {loading ? (
+            <ProductGrid loading count={8} />
+          ) : error ? (
+            <EmptyState message={error} onRetry={() => window.location.reload()} />
+          ) : filteredProducts.length === 0 ? (
+            <EmptyState message="No rentals match your filters." />
+          ) : (
+            <ProductGrid
+              products={filteredProducts}
+              wishlist={wishlist}
+              onToggleWishlist={toggleWishlist}
               getProductAge={getProductAge}
               formatRentalRate={formatRentalRate}
+              type="borrow"
             />
-          ))}
+          )}
+        </main>
         </div>
-      ) : (
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <div className="text-gray-500 text-lg mb-4">No items match your filters</div>
-          <button
-            onClick={resetFilters}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-          >
-            Reset Filters
-          </button>
-        </div>
-      )}
     </div>
   );
 };

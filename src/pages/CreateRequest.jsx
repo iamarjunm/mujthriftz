@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import slugify from "slugify";
-import { FiUpload, FiX, FiLoader, FiTrash2 } from "react-icons/fi";
+import { FiUpload, FiX, FiLoader, FiTrash2, FiPlusCircle, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 const CreateRequest = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return null;
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -24,7 +28,6 @@ const CreateRequest = () => {
     slug: { current: "" }
   });
 
-  const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [tagInput, setTagInput] = useState("");
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -186,6 +189,19 @@ const CreateRequest = () => {
     }
   }, [formData.title]);
 
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return null;
+  }
+  if (!user) {
+    return null;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -276,13 +292,12 @@ const CreateRequest = () => {
   }, [imagePreviews]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <h2 className="text-5xl font-extrabold text-purple-700 text-center mb-12 pt-12">
-          Create New Request
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 px-2 py-10 flex items-center justify-center">
+      <div className="w-full max-w-2xl mx-auto bg-white/90 rounded-2xl shadow-2xl p-8 md:p-12">
+        <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 flex items-center justify-center gap-2">
+          <FiPlusCircle className="text-purple-500" /> Create Request
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -294,7 +309,7 @@ const CreateRequest = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="What are you looking for?"
                 maxLength={100}
                 required
@@ -309,7 +324,7 @@ const CreateRequest = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 required
               >
                 <option value="">Select category</option>
@@ -336,7 +351,7 @@ const CreateRequest = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               rows={5}
               placeholder="Describe what you're looking for in detail"
               minLength={30}
@@ -385,7 +400,7 @@ const CreateRequest = () => {
                 name="priceRange"
                 value={formData.priceRange}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 required
               >
                 <option value="under-500">Under ₹500</option>
@@ -412,7 +427,7 @@ const CreateRequest = () => {
                     name="years"
                     value={formData.productAge.years}
                     onChange={handleProductAgeChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     placeholder="Years"
                     min="0"
                   />
@@ -423,7 +438,7 @@ const CreateRequest = () => {
                     name="months"
                     value={formData.productAge.months}
                     onChange={handleProductAgeChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     placeholder="Months (0-11)"
                     min="0"
                     max="11"
@@ -440,7 +455,7 @@ const CreateRequest = () => {
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               >
                 <option value="new">Brand New</option>
                 <option value="like-new">Like New</option>
@@ -579,7 +594,7 @@ const CreateRequest = () => {
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                className="flex-1 p-3 border border-gray-300 rounded-lg"
+                className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Add tags (e.g., textbook, engineering)"
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               />
@@ -623,7 +638,7 @@ const CreateRequest = () => {
                 name="lat"
                 value={formData.location?.lat || ""}
                 onChange={handleLocationChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Latitude"
                 step="any"
               />
@@ -632,7 +647,7 @@ const CreateRequest = () => {
                 name="lng"
                 value={formData.location?.lng || ""}
                 onChange={handleLocationChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Longitude"
                 step="any"
               />
@@ -683,7 +698,7 @@ const CreateRequest = () => {
           </button>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -3,6 +3,13 @@ import { client } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import ProductCard from "../components/ProductCard";
 import { FiFilter, FiX, FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import HeroSection from '../components/HeroSection';
+import FiltersSidebar from '../components/FiltersSidebar';
+import SortSearchBar from '../components/SortSearchBar';
+import ActiveFiltersChips from '../components/ActiveFiltersChips';
+import ProductGrid from '../components/ProductGrid';
+import EmptyState from '../components/EmptyState';
 
 const RequestListing = () => {
   const [requests, setRequests] = useState([]);
@@ -216,205 +223,74 @@ const RequestListing = () => {
     setSortOption("newest");
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-20">
-        <div className="text-red-500 text-lg font-medium mb-4">{error}</div>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
+  const filtersApplied = selectedCategories.length > 0 || selectedConditions.length > 0 || selectedRequestTypes.length > 0 || selectedPriceRanges.length > 0;
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-          🔍 Product Requests
-        </h2>
-        
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          {/* Search Bar */}
-          <div className="relative flex-grow md:w-64">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search requests..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {/* Filter Button */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition"
-          >
-            <FiFilter />
-            <span className="hidden sm:inline">Filters</span>
-            {showFilters ? <FiChevronUp /> : <FiChevronDown />}
-          </button>
-        </div>
-      </div>
-
-      {/* Filters Panel */}
-      {showFilters && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Filter Requests</h3>
-            <button 
-              onClick={resetFilters}
-              className="text-sm text-indigo-600 hover:text-indigo-800"
-            >
-              Reset All
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Request Type Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Request Type</h4>
-              <div className="space-y-2">
-                {requestTypes.map(type => (
-                  <div key={type} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`type-${type}`}
-                      checked={selectedRequestTypes.includes(type)}
-                      onChange={() => toggleRequestType(type)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`type-${type}`} className="capitalize">
-                      {type === 'buy' ? 'Want to Buy' : 'Want to Rent'}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Categories</h4>
-              <div className="space-y-2">
-                {categories.map(category => (
-                  <div key={category} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`cat-${category}`}
-                      checked={selectedCategories.includes(category)}
-                      onChange={() => toggleCategory(category)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`cat-${category}`} className="capitalize">
-                      {category.replace('-', ' ')}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Condition Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Condition</h4>
-              <div className="space-y-2">
-                {conditions.map(condition => (
-                  <div key={condition} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`cond-${condition}`}
-                      checked={selectedConditions.includes(condition)}
-                      onChange={() => toggleCondition(condition)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`cond-${condition}`} className="capitalize">
-                      {condition === 'any' ? 'Any condition' : condition.replace('-', ' ')}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Range Filter */}
-            <div>
-              <h4 className="font-medium mb-2">Price Range</h4>
-              <div className="space-y-2">
-                {priceRanges.map(range => (
-                  <div key={range} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`price-${range}`}
-                      checked={selectedPriceRanges.includes(range)}
-                      onChange={() => togglePriceRange(range)}
-                      className="mr-2"
-                    />
-                    <label htmlFor={`price-${range}`}>
-                      {getPriceRangeLabel(range)}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sorting Options */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-gray-500">
-          Showing {filteredRequests.length} of {requests.length} requests
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Sort by:</span>
-          <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Requests Grid */}
-      {filteredRequests.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredRequests.map((request) => (
-            <ProductCard
-              key={request._id}
-              item={request}
-              type="request"
-              isInWishlist={wishlist.includes(request._id)}
-              onToggleWishlist={() => toggleWishlist(request._id)}
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-orange-50">
+      <HeroSection
+        title="Requests"
+        subtitle="Browse and respond to requests from MUJ students. Use filters to find requests you can fulfill!"
+        ctaText="Create Request"
+        ctaLink="/create-request"
+        illustration="request"
+        colorTheme="pink-orange"
+      />
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-2 sm:px-4 py-8">
+        <FiltersSidebar
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onToggleCategory={toggleCategory}
+          conditions={conditions}
+          selectedConditions={selectedConditions}
+          onToggleCondition={toggleCondition}
+          requestTypes={requestTypes}
+          selectedRequestTypes={selectedRequestTypes}
+          onToggleRequestType={toggleRequestType}
+          priceRanges={priceRanges}
+          selectedPriceRanges={selectedPriceRanges}
+          onTogglePriceRange={togglePriceRange}
+          resetFilters={resetFilters}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          colorTheme="pink-orange"
+        />
+        <main className="flex-1 min-w-0">
+          <SortSearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+            resultCount={filteredRequests.length}
+          />
+          <ActiveFiltersChips
+            selectedCategories={selectedCategories}
+            selectedConditions={selectedConditions}
+            selectedRequestTypes={selectedRequestTypes}
+            selectedPriceRanges={selectedPriceRanges}
+            onRemoveCategory={toggleCategory}
+            onRemoveCondition={toggleCondition}
+            onRemoveRequestType={toggleRequestType}
+            onRemovePriceRange={togglePriceRange}
+            onReset={resetFilters}
+          />
+          {loading ? (
+            <ProductGrid loading count={8} type="request" />
+          ) : error ? (
+            <EmptyState message={error} onRetry={() => window.location.reload()} />
+          ) : filteredRequests.length === 0 ? (
+            <EmptyState message="No requests match your filters." />
+          ) : (
+            <ProductGrid
+              products={filteredRequests}
+              wishlist={wishlist}
+              onToggleWishlist={toggleWishlist}
               getProductAge={getProductAge}
               getPriceRangeLabel={getPriceRangeLabel}
+              type="request"
             />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-gray-50 rounded-xl">
-          <div className="text-gray-500 text-lg mb-4">No requests match your filters</div>
-          <button
-            onClick={resetFilters}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-          >
-            Reset Filters
-          </button>
-        </div>
-      )}
+          )}
+        </main>
+      </div>
     </div>
   );
 };

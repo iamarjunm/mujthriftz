@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiHeart, FiClock, FiUser, FiEye } from "react-icons/fi";
-import { FaRupeeSign, FaExchangeAlt, FaFire } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { FiHeart, FiUser, FiClock, FiEye } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 import { urlFor } from "../sanityClient";
 
 const ProductCard = ({ 
   item, 
-  type = 'product', // 'product', 'borrow', or 'request'
+  type = 'product',
   isInWishlist = false,
   onToggleWishlist = () => {},
   getProductAge = () => "New",
@@ -15,116 +14,85 @@ const ProductCard = ({
   getPriceRangeLabel = () => ""
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
- const getPriceDisplay = () => {
-  switch(type) {
-    case 'borrow':
-      if (item.rentalRate) {
-        const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
-        return (
-          <motion.span 
-            key="borrow-price"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center text-sm"
-          >
-            <FaRupeeSign className="mr-0.5" />
-            {item.rentalRate.amount?.toLocaleString()}
-            <span className="text-xs ml-1">/{durationMap[item.rentalRate.duration]}</span>
-            {item.rentalRate.deposit > 0 && (
-              <span className="text-xs ml-2 text-gray-500">
-                + ₹{item.rentalRate.deposit?.toLocaleString()} deposit
-              </span>
-            )}
-          </motion.span>
-        );
-      }
-      return "Rate not specified";
-
-    case 'request':
-      return (
-        <motion.span 
-          key="request-price"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center text-sm text-gray-700"
-        >
-          {getPriceRangeLabel(item.priceRange)}
-        </motion.span>
-      );
-
-    default:
-      return item.price ? (
-        <motion.span 
-          key="product-price"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center text-sm"
-        >
-          <FaRupeeSign className="mr-0.5" />
-          {item.price.toLocaleString()}
-        </motion.span>
-      ) : "Price not set";
-  }
-};
-
-
-  // Dynamic styling with more visual impact
-  const getTypeStyles = () => {
-    const baseStyles = {
-      product: {
-        badge: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',
-        button: 'bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700',
-        ribbon: 'from-purple-500 to-indigo-600',
-      },
-      borrow: {
-        badge: 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',
-        button: 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700',
-        ribbon: 'from-blue-500 to-cyan-600',
-        tagIcon: <FaExchangeAlt />
-      },
-      request: {
-        badge: item.requestType === 'buy' 
-          ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white' 
-          : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white',
-        button: 'bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700',
-        ribbon: item.requestType === 'buy' ? 'from-pink-500 to-rose-600' : 'from-blue-500 to-cyan-600',
-        tagIcon: item.requestType === 'buy' ? <FaRupeeSign /> : <FaExchangeAlt />
-      }
-    };
-    return baseStyles[type] || baseStyles.product;
+  // Minimal price display
+  const getPriceDisplay = () => {
+    switch(type) {
+      case 'borrow':
+        if (formatRentalRate && typeof formatRentalRate === 'function') {
+          return formatRentalRate(item.rentalRate);
+        }
+        if (item.rentalRate) {
+          const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
+          return `₹${item.rentalRate.amount?.toLocaleString()}/${durationMap[item.rentalRate.duration]}`;
+        }
+        return "Rate not specified";
+      case 'request':
+        return getPriceRangeLabel(item.priceRange);
+      case 'roommate':
+        return item.budget && item.budget !== "" ? `Budget: ₹${item.budget}` : "Budget: Not set";
+      default:
+        return item.price ? `₹${item.price.toLocaleString()}` : "Price not set";
+    }
   };
 
-  const styles = getTypeStyles();
-  const priceDisplay = getPriceDisplay();
+  // Avatar for roommate: postedBy.profileImage or initials; for others, use previous logic
+  const getAvatar = () => {
+    // Roommate: postedBy
+    if (type === 'roommate' && item.postedBy) {
+      if (item.postedBy.profileImage) {
+        const imgUrl = item.postedBy.profileImage.asset ? urlFor(item.postedBy.profileImage).width(64).height(64).url() : item.postedBy.profileImage;
+        return <img src={imgUrl} alt={item.postedBy.fullName || 'Profile'} className="w-6 h-6 rounded-full object-cover border" />;
+      }
+      const name = item.postedBy.fullName || "User";
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+      return <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-xs font-bold text-white">{initials}</div>;
+    }
+    // Request: requestedBy
+    if (type === 'request' && item.requestedBy) {
+      if (item.requestedBy.profileImage) {
+        const imgUrl = item.requestedBy.profileImage.asset ? urlFor(item.requestedBy.profileImage).width(64).height(64).url() : item.requestedBy.profileImage;
+        return <img src={imgUrl} alt={item.requestedBy.fullName || 'Profile'} className="w-6 h-6 rounded-full object-cover border" />;
+      }
+      const name = item.requestedBy.fullName || "User";
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+      return <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-xs font-bold text-white">{initials}</div>;
+    }
+    // Product: seller
+    if (item.seller) {
+      if (item.seller.profileImage) {
+        const imgUrl = item.seller.profileImage.asset ? urlFor(item.seller.profileImage).width(64).height(64).url() : item.seller.profileImage;
+        return <img src={imgUrl} alt={item.seller.fullName || 'Profile'} className="w-6 h-6 rounded-full object-cover border" />;
+      }
+      const name = item.seller.fullName || "User";
+      const initials = name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+      return <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-xs font-bold text-white">{initials}</div>;
+    }
+    // Fallback
+    return <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500"><FiUser className="w-4 h-4" /></div>;
+  };
 
-  return (
-    <motion.div 
+  const CardContent = (
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.035, boxShadow: "0 12px 32px 0 rgba(139,92,246,0.13)" }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="relative bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full overflow-hidden"
+      className="bg-white/80 backdrop-blur border border-gray-100 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col h-full overflow-hidden relative"
+      style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.06) 0%, rgba(59,130,246,0.04) 100%)" }}
     >
-      {/* Hot Deal Ribbon */}
-      {item.isHotDeal && (
-        <div className={`absolute top-0 right-4 w-24 h-8 bg-gradient-to-r ${styles.ribbon} text-white text-xs font-bold flex items-center justify-center transform rotate-45 translate-x-2 -translate-y-1 z-10 shadow-md`}>
-          <FaFire className="mr-1" /> HOT DEAL
-        </div>
-      )}
-
-      {/* Image Section with Parallax Effect */}
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      {/* Image Section */}
+      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden group">
         {item.images?.[0] ? (
           <motion.img
             src={urlFor(item.images[0]).width(600).height(450).url()}
             alt={item.title}
-            className="w-full h-full object-cover"
-            initial={{ scale: 1 }}
-            animate={{ scale: isHovered ? 1.1 : 1 }}
-            transition={{ duration: 0.5 }}
+            className="w-full h-full object-cover border-2 border-white/60 rounded-b-xl transition-transform duration-300"
+            style={{ boxShadow: isHovered ? '0 4px 32px 0 rgba(139,92,246,0.10)' : '', transform: isHovered ? 'scale(1.045)' : 'scale(1)' }}
             loading="lazy"
+            whileHover={{ scale: 1.06 }}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
@@ -133,108 +101,127 @@ const ProductCard = ({
             </svg>
           </div>
         )}
-
-        {/* Floating Price Tag */}
-        <motion.div 
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className={`absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md text-sm font-bold flex items-center ${type === 'product' ? 'text-purple-600' : 'text-gray-800'}`}
-        >
-          {styles.tagIcon && (
-            <motion.span className="mr-1">
-              {styles.tagIcon}
-            </motion.span>
-          )}
-          {priceDisplay}
-        </motion.div>
-
-        {/* Wishlist Button with Animation */}
+        {/* Gradient overlay at bottom */}
+        <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white/90 via-white/0 to-transparent pointer-events-none" />
+        {/* Image ring */}
+        <div className="absolute inset-0 pointer-events-none rounded-b-xl ring-2 ring-purple-100 group-hover:ring-purple-300 transition-all" />
+        {/* Price Tag */}
+        <div className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white px-4 py-1 rounded-full shadow-lg text-sm font-bold tracking-wide border-2 border-white/80">
+          {getPriceDisplay()}
+        </div>
+        {/* Wishlist Button */}
         <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={(e) => {
-            e.preventDefault();
-            onToggleWishlist();
-          }}
-          className={`absolute top-4 right-4 p-2 rounded-full backdrop-blur-sm transition-all ${
-            isInWishlist ? "bg-red-500/90 text-white shadow-lg" : "bg-white/90 text-gray-500 hover:text-red-500"
-          } shadow-sm z-10`}
+          onClick={e => { e.preventDefault(); onToggleWishlist(); setShowTooltip(true); setTimeout(() => setShowTooltip(false), 1200); }}
+          className={`absolute top-3 right-3 p-2 rounded-full bg-white/90 text-gray-500 hover:text-red-500 shadow transition-all ${isInWishlist ? 'text-red-500' : ''}`}
+          whileTap={{ scale: 1.3 }}
+          aria-label={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
         >
-          <FiHeart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
+          <FiHeart className="w-5 h-5" />
+          <AnimatePresence>
+            {showTooltip && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute right-0 top-10 bg-gray-900 text-white text-xs rounded px-2 py-1 shadow-lg z-10"
+              >
+                {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.button>
       </div>
-
       {/* Content Section */}
-      <div className="p-5 flex-grow flex flex-col">
-        {/* Title with hover effect */}
-        <Link 
-          to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`}
-          className="group"
-        >
-          <h3 className="font-bold text-gray-900 text-lg line-clamp-2 mb-2 leading-tight transition-colors group-hover:text-purple-600">
-            {item.title}
-          </h3>
-        </Link>
-
-        {/* Seller/Requester Info with Animation */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center gap-2 text-sm text-gray-500 mb-3"
-        >
-          <div className="p-1.5 bg-gray-100 rounded-full">
-            <FiUser className="w-3 h-3" />
-          </div>
-          <span className="truncate">
-            {item.isAnonymous
-              ? item.anonymousName || "Anonymous"
-              : (type === 'request' ? item.requestedBy?.fullName : item.seller?.fullName)?.split(' ')[0] || 
-                (type === 'request' ? "Requester" : "Seller")}
+      <div className="p-5 flex flex-col flex-grow">
+        {type === 'roommate' && item.link ? (
+          <Link to={item.link} className="group">
+            <h3 className="font-bold text-gray-900 text-lg line-clamp-1 mb-1 leading-tight transition-colors group-hover:text-purple-600">
+              {item.title}
+            </h3>
+          </Link>
+        ) : (
+          <Link to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`} className="group">
+            <h3 className="font-bold text-gray-900 text-lg line-clamp-1 mb-1 leading-tight transition-colors group-hover:text-purple-600">
+              {item.title}
+            </h3>
+          </Link>
+        )}
+        <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+          {getAvatar()}
+          <span className="truncate font-medium">
+            {type === 'roommate' && item.postedBy
+              ? item.postedBy.fullName?.split(' ')[0] || 'User'
+              : type === 'request' && item.requestedBy
+                ? item.requestedBy.fullName?.split(' ')[0] || 'User'
+                : item.seller
+                  ? item.seller.fullName?.split(' ')[0] || 'User'
+                  : item.isAnonymous
+                    ? item.anonymousName || "Anonymous"
+                    : "User"}
           </span>
-        </motion.div>
-
-        {/* Additional Info Chips */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full flex items-center"
-          >
-            <FiClock className="mr-1" />
+        </div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded font-semibold flex items-center gap-1">
+            <FiClock className="inline-block mr-1 mb-0.5" />
             {type === 'request' ? new Date(item._createdAt).toLocaleDateString() : getProductAge(item.productAge)}
-          </motion.span>
-          
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-full"
-          >
+          </span>
+          <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded font-semibold">
             {item.condition === 'any' ? 'Any condition' : item.condition}
-          </motion.span>
+          </span>
+          {item.category && (
+            <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded font-medium">
+              {item.category.replace(/^[^\w]+/, '')}
+            </span>
+          )}
+          {/* Show meta chips for roommate finder cards */}
+          {type === 'roommate' && item.roommatePreferences?.gender && (
+            <span className="text-xs bg-pink-50 text-pink-700 px-2 py-1 rounded font-medium">
+              {item.roommatePreferences.gender.charAt(0).toUpperCase() + item.roommatePreferences.gender.slice(1)}
+            </span>
+          )}
+          {type === 'roommate' && item.accommodationType && (
+            <span className="text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded font-medium">
+              {item.accommodationType.replace(/-/g, ' ').replace('pg', 'PG').replace('flat', 'Flat/Apartment').replace('college hostel', 'College Hostel')}
+            </span>
+          )}
+          {/* Show tags for roommate finder cards if present */}
+          {type === 'roommate' && Array.isArray(item.tags) && item.tags.length > 0 && item.tags.map((tag, idx) => (
+            <span key={idx} className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded font-medium">
+              {tag}
+            </span>
+          ))}
         </div>
-
-        {/* Category Badge */}
+        <div className="border-t border-gray-100 my-2" />
         <div className="mt-auto">
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className={`text-xs ${styles.badge} px-3 py-1.5 rounded-full inline-flex items-center`}
-          >
-            {item.category?.replace(/^[^\w]+/, '')}
-          </motion.span>
+          {type === 'roommate' && item.link ? (
+            <Link
+              to={item.link}
+              className="w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg text-sm font-semibold shadow hover:scale-105 hover:shadow-lg transition-all"
+            >
+              <FiEye className="w-4 h-4 mr-1" />
+              View Details
+            </Link>
+          ) : (
+            <Link
+              to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`}
+              className="w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg text-sm font-semibold shadow hover:scale-105 hover:shadow-lg transition-all"
+            >
+              <FiEye className="w-4 h-4 mr-1" />
+              {type === 'request' ? 'View Request' : 'View Details'}
+            </Link>
+          )}
         </div>
-      </div>
-
-      {/* View Button with Glow Effect */}
-      <div className="px-5 pb-5">
-        <Link
-          to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`}
-          className={`w-full flex items-center justify-center ${styles.button} text-white py-3 rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-${type === 'product' ? 'purple' : type === 'borrow' ? 'green' : 'indigo'}-500/30`}
-        >
-          <FiEye className="w-5 h-5 mr-2" />
-          {type === 'request' ? 'View Request' : 'View Details'}
-        </Link>
       </div>
     </motion.div>
   );
+
+  // Avoid nested <a> tags for roommate cards
+  if (type === 'roommate' && item.link) {
+    return CardContent;
+  }
+  return item.link ? <Link to={item.link}>{CardContent}</Link> : CardContent;
 };
 
 export default ProductCard;

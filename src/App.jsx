@@ -23,13 +23,23 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 import ChatPage from "./pages/ChatPage"
 import Inbox from "./pages/Inbox";
+import RoommateFinder from "./pages/RoommateFinder";
+import CreateRoommateRequest from "./pages/CreateRoommateRequest";
+import RoommateFinderDetails from "./pages/RoommateFinderDetails";
+import WorkInProgressOverlay from "./components/WorkInProgressOverlay";
+
+const WORK_IN_PROGRESS = import.meta.env.VITE_WORK_IN_PROGRESS === 'true';
 
 const App = () => {
+  if (WORK_IN_PROGRESS) {
+    return <WorkInProgressOverlay />;
+  }
+
   return (
     <Router>
       <ScrollToTop /> 
       <Navbar />
-      <main className = "pt-10">
+      <main className = "pt-0">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -50,7 +60,10 @@ const App = () => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/inbox" element={<Inbox />} />
-        <Route path="/chat/:productId/:conversationId" element={<ChatPage />} />
+          <Route path="/chat/:productId/:conversationId" element={<ChatPage />} />
+          <Route path="/roommate-finder" element={<RoommateFinder />} />
+          <Route path="/roommate-finder/:id" element={<RoommateFinderDetails />} />
+          <Route path="/create-roommate-request" element={<CreateRoommateRequest />} />
         </Routes>
       </main>
       <Footer />

@@ -3,24 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { client, urlFor } from "../sanityClient";
 import {useAuth} from "../Context/AuthContext";
 import slugify from "slugify";
-import { FiUpload, FiX, FiLoader, FiTrash2 } from "react-icons/fi";
+import { FiUpload, FiX, FiLoader, FiTrash2, FiPlusCircle, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 
 
 const CreateListing = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
-
-  // If user is not logged in, don't render the form
-  if (!user) {
-    return null; // or a loading spinner if you prefer
-  }
+  // All hooks must be called unconditionally before any return
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -37,13 +29,21 @@ const CreateListing = () => {
     location: null,
     slug: { current: "" }
   });
-
-  const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [tagInput, setTagInput] = useState("");
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [filesToUpload, setFilesToUpload] = useState([]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Only the returned JSX is conditional
+  if (loading) return null;
+  if (!user) return null;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -323,13 +323,12 @@ const CreateListing = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <h2 className="text-5xl font-extrabold text-purple-700 text-center mb-12 pt-12">
-          Create New Listing
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-lg">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 px-2 py-10 flex items-center justify-center">
+      <div className="w-full max-w-2xl mx-auto bg-white/90 rounded-2xl shadow-2xl p-8 md:p-12">
+        <h1 className="text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 flex items-center justify-center gap-2">
+          <FiPlusCircle className="text-purple-500" /> Create Listing
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -342,7 +341,7 @@ const CreateListing = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter listing title"
                 maxLength={100}
                 required
@@ -357,7 +356,7 @@ const CreateListing = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 required
               >
                 <option value="">Select category</option>
@@ -383,7 +382,7 @@ const CreateListing = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
               rows={5}
               placeholder="Describe your item in detail"
               minLength={30}
@@ -402,7 +401,7 @@ const CreateListing = () => {
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 required
               >
                 <option value="">Select condition</option>
@@ -456,7 +455,7 @@ const CreateListing = () => {
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter price"
                 min="0"
                 step="0.01"
@@ -474,7 +473,7 @@ const CreateListing = () => {
                   name="amount"
                   value={formData.rentalRate.amount}
                   onChange={handleRentalRateChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   placeholder="Amount"
                   min="0"
                   step="0.01"
@@ -489,7 +488,7 @@ const CreateListing = () => {
                   name="duration"
                   value={formData.rentalRate.duration}
                   onChange={handleRentalRateChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   required
                 >
                   <option value="hour">Per Hour</option>
@@ -507,7 +506,7 @@ const CreateListing = () => {
                   name="deposit"
                   value={formData.rentalRate.deposit}
                   onChange={handleRentalRateChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   placeholder="Optional"
                   min="0"
                   step="0.01"
@@ -527,7 +526,7 @@ const CreateListing = () => {
                 name="years"
                 value={formData.productAge.years}
                 onChange={handleProductAgeChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Years"
                 min="0"
               />
@@ -541,7 +540,7 @@ const CreateListing = () => {
                 name="months"
                 value={formData.productAge.months}
                 onChange={handleProductAgeChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Months (0-11)"
                 min="0"
                 max="11"
@@ -680,7 +679,7 @@ const CreateListing = () => {
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                className="flex-1 p-3 border border-gray-300 rounded-lg"
+                className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Add tags (e.g., textbook, engineering)"
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               />
@@ -724,7 +723,7 @@ const CreateListing = () => {
                 name="lat"
                 value={formData.location?.lat || ""}
                 onChange={handleLocationChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Latitude"
                 step="any"
               />
@@ -733,7 +732,7 @@ const CreateListing = () => {
                 name="lng"
                 value={formData.location?.lng || ""}
                 onChange={handleLocationChange}
-                className="w-full p-3 border border-gray-300 rounded-lg"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 placeholder="Longitude"
                 step="any"
               />
@@ -784,7 +783,7 @@ const CreateListing = () => {
           </button>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
