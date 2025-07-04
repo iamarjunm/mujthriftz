@@ -103,7 +103,7 @@ const RoommateFinderDetails = () => {
   if (!roommate) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8 pt-20 max-w-7xl">
+    <div className="container mx-auto px-4 py-12 pt-20 max-w-7xl">
       {/* Back Button */}
       <div className="mb-6">
         <button 
@@ -176,47 +176,74 @@ const RoommateFinderDetails = () => {
           </div>
           {/* Details */}
           <div className="md:w-1/2 p-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-purple-700 flex items-center gap-2">
-              {roommate.title}
-            </h1>
-            <div className="mb-4 text-gray-600">
-              <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold mr-2">
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{roommate.title}</h1>
+              <span className="text-2xl font-bold text-purple-600">
+                {roommate.budget ? `₹${roommate.budget}` : 'No budget set'}
+              </span>
+            </div>
+            {/* Meta Info */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                 {roommate.accommodationType?.replace('-', ' ').replace('pg', 'PG').replace('flat', 'Flat/Apartment').replace('college hostel', 'College Hostel')}
               </span>
-              <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold mr-2">
-                Budget: {roommate.budget ? `₹${roommate.budget}` : 'Not set'}
-              </span>
-              <span className="inline-block bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
+              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
                 {roommate.roommatePreferences?.gender ? `Prefers ${roommate.roommatePreferences.gender}` : 'Any gender'}
               </span>
             </div>
-            <div className="mb-4">
-              <h2 className="font-semibold text-lg mb-1">Description</h2>
+            {/* Description */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-2 text-gray-900">Description</h3>
               <p className="text-gray-700 whitespace-pre-line">{roommate.description}</p>
             </div>
-            <div className="mb-4">
-              <h2 className="font-semibold text-lg mb-1">Roommate Preferences</h2>
-              <ul className="text-gray-700 text-sm list-disc pl-5">
-                <li>Gender: {roommate.roommatePreferences?.gender || 'Any'}</li>
-                <li>Age Range: {roommate.roommatePreferences?.ageRange || 'Any'}</li>
-                <li>Other: {roommate.roommatePreferences?.otherPreferences || 'None'}</li>
-              </ul>
-            </div>
-            <div className="mb-4">
-              <h2 className="font-semibold text-lg mb-1">Contact Information</h2>
-              <p className="text-gray-700">{roommate.contactInfo}</p>
-            </div>
-            <div className="mb-4">
-              <h2 className="font-semibold text-lg mb-1">Posted By</h2>
-              <div className="flex items-center gap-3">
-                {roommate.postedBy?.profileImage && (
-                  <img src={roommate.postedBy.profileImage.asset ? urlFor(roommate.postedBy.profileImage).width(80).height(80).url() : roommate.postedBy.profileImage} alt="Profile" className="w-10 h-10 rounded-full object-cover border" />
-                )}
-                <span className="font-medium text-gray-800">{roommate.postedBy?.fullName || 'Anonymous'}</span>
+            {/* Info Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="block text-sm font-medium text-gray-500 mb-1">Gender</span>
+                <span className="text-gray-900">{roommate.roommatePreferences?.gender || 'Any'}</span>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="block text-sm font-medium text-gray-500 mb-1">Age Range</span>
+                <span className="text-gray-900">{roommate.roommatePreferences?.ageRange || 'Any'}</span>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="block text-sm font-medium text-gray-500 mb-1">Other Preferences</span>
+                <span className="text-gray-900">{roommate.roommatePreferences?.otherPreferences || 'None'}</span>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <span className="block text-sm font-medium text-gray-500 mb-1">Status</span>
+                <span className={roommate.isActive ? "text-green-600 font-medium" : "text-gray-500"}>
+                  {roommate.isActive ? "Active" : "Inactive"}
+                </span>
               </div>
             </div>
-            <div className="mb-2 text-xs text-gray-400">
-              Posted on {new Date(roommate.createdAt).toLocaleDateString()} | Last updated {new Date(roommate.updatedAt).toLocaleDateString()}
+            {/* Profile Card */}
+            <div className="border-t border-gray-200 pt-4 mb-6">
+              <h3 className="text-lg font-semibold mb-3 text-gray-900">Posted By</h3>
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                {roommate.postedBy?.profileImage ? (
+                  <img
+                    src={roommate.postedBy.profileImage.asset ? urlFor(roommate.postedBy.profileImage).width(60).url() : roommate.postedBy.profileImage}
+                    alt="Profile"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
+                    {(roommate.postedBy?.fullName || 'A').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium text-gray-900">{roommate.postedBy?.fullName || 'Anonymous'}</p>
+                  {roommate.postedBy?.phone && (
+                    <a
+                      href={`tel:${roommate.postedBy.phone}`}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      {roommate.postedBy.phone}
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
             {/* Chat & WhatsApp Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -230,6 +257,9 @@ const RoommateFinderDetails = () => {
                   profileImage: roommate.postedBy?.profileImage
                 }
               }} />
+            </div>
+            <div className="mb-2 text-xs text-gray-400">
+              Posted on {new Date(roommate.createdAt).toLocaleDateString()} | Last updated {new Date(roommate.updatedAt).toLocaleDateString()}
             </div>
           </div>
         </div>

@@ -267,18 +267,18 @@ const RequestListing = () => {
             setShowFilters={setShowFilters}
             colorTheme="pink-orange"
           />
-        </div>
+      </div>
         {/* Filters Overlay (mobile) */}
-        {showFilters && (
+      {showFilters && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 md:hidden">
             <div className="relative w-full max-w-xs bg-white rounded-2xl shadow-2xl p-4 border border-gray-100 mx-2">
-              <button
+            <button 
                 className="absolute top-2 right-2 text-gray-500 hover:text-pink-600 p-2"
                 onClick={() => setShowFilters(false)}
                 aria-label="Close Filters"
-              >
+            >
                 <FiX className="text-xl" />
-              </button>
+            </button>
               <FiltersSidebar
                 categories={categories}
                 selectedCategories={selectedCategories}
@@ -297,9 +297,9 @@ const RequestListing = () => {
                 setShowFilters={setShowFilters}
                 colorTheme="pink-orange"
               />
-            </div>
           </div>
-        )}
+        </div>
+      )}
         <main className="flex-1 min-w-0">
           <SortSearchBar
             searchQuery={searchQuery}
@@ -336,7 +336,7 @@ const RequestListing = () => {
             />
           )}
         </main>
-      </div>
+        </div>
     </div>
   );
 };

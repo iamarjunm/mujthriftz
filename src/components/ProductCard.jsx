@@ -17,25 +17,25 @@ const ProductCard = ({
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Minimal price display
-  const getPriceDisplay = () => {
-    switch(type) {
-      case 'borrow':
+ const getPriceDisplay = () => {
+  switch(type) {
+    case 'borrow':
         if (formatRentalRate && typeof formatRentalRate === 'function') {
           return formatRentalRate(item.rentalRate);
         }
-        if (item.rentalRate) {
-          const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
+      if (item.rentalRate) {
+        const durationMap = { hour: "hr", day: "day", week: "wk", month: "mo" };
           return `₹${item.rentalRate.amount?.toLocaleString()}/${durationMap[item.rentalRate.duration]}`;
-        }
-        return "Rate not specified";
-      case 'request':
+      }
+      return "Rate not specified";
+    case 'request':
         return getPriceRangeLabel(item.priceRange);
       case 'roommate':
         return item.budget && item.budget !== "" ? `Budget: ₹${item.budget}` : "Budget: Not set";
-      default:
+    default:
         return item.price ? `₹${item.price.toLocaleString()}` : "Price not set";
-    }
-  };
+  }
+};
 
   // Avatar for roommate: postedBy.profileImage or initials; for others, use previous logic
   const getAvatar = () => {
@@ -74,7 +74,7 @@ const ProductCard = ({
   };
 
   const CardContent = (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.035, boxShadow: "0 12px 32px 0 rgba(139,92,246,0.13)" }}
@@ -144,9 +144,9 @@ const ProductCard = ({
         ) : (
           <Link to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`} className="group">
             <h3 className="font-bold text-gray-900 text-lg line-clamp-1 mb-1 leading-tight transition-colors group-hover:text-purple-600">
-              {item.title}
-            </h3>
-          </Link>
+            {item.title}
+          </h3>
+        </Link>
         )}
         <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
           {getAvatar()}
@@ -158,7 +158,7 @@ const ProductCard = ({
                 : item.seller
                   ? item.seller.fullName?.split(' ')[0] || 'User'
                   : item.isAnonymous
-                    ? item.anonymousName || "Anonymous"
+              ? item.anonymousName || "Anonymous"
                     : "User"}
           </span>
         </div>
@@ -204,13 +204,13 @@ const ProductCard = ({
               View Details
             </Link>
           ) : (
-            <Link
-              to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`}
+        <Link
+          to={`/${type === 'request' ? 'request' : 'product'}/${item._id}`}
               className="w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg text-sm font-semibold shadow hover:scale-105 hover:shadow-lg transition-all"
-            >
+        >
               <FiEye className="w-4 h-4 mr-1" />
-              {type === 'request' ? 'View Request' : 'View Details'}
-            </Link>
+          {type === 'request' ? 'View Request' : 'View Details'}
+        </Link>
           )}
         </div>
       </div>

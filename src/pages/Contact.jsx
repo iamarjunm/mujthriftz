@@ -36,17 +36,17 @@ const Contact = () => {
       return;
     }
     emailjs.sendForm(
-      'service_9toub17',
-      'template_sxkm50c',
-      formRef.current,
+      'service_9toub17', 
+      'template_sxkm50c', 
+      formRef.current, 
       'KnW74zjkGTLX8MjqW'
     )
       .then(() => {
         setStatus({ submitting: false, error: null, success: "Message sent! We'll get back to you soon. 🎉" });
         setFormData({ name: "", email: "", subject: "", message: "" });
       }, () => {
-        setStatus({ submitting: false, error: "Oops! Something went wrong. Please try again later.", success: null });
-      });
+      setStatus({ submitting: false, error: "Oops! Something went wrong. Please try again later.", success: null });
+    });
   };
 
   const handleCopy = () => {
@@ -56,7 +56,7 @@ const Contact = () => {
   };
 
   return (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -81,7 +81,7 @@ const Contact = () => {
 
       <div className="w-full max-w-5xl mx-auto z-10">
         {/* Hero Section */}
-        <motion.div
+        <motion.div 
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 80, damping: 12, delay: 0.1 }}
@@ -105,15 +105,15 @@ const Contact = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
           {/* Contact Form Card */}
-          <motion.div
+                <motion.div 
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 14, delay: 0.2 }}
             className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-10 flex flex-col justify-center relative"
-          >
+                >
             <AnimatePresence>
               {status.success && (
-                <motion.div
+                <motion.div 
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -127,60 +127,60 @@ const Contact = () => {
             </AnimatePresence>
             <form ref={formRef} onSubmit={sendEmail} className="space-y-7 relative z-10">
               <div className="relative">
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                   className="peer w-full p-4 pt-6 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder-transparent"
-                  placeholder="Your name"
-                  required
-                />
+                    placeholder="Your name"
+                    required
+                  />
                 <label className="absolute left-4 top-4 text-gray-500 text-base transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:-top-2 peer-focus:text-xs peer-focus:text-purple-600 bg-white px-1">
                   Name *
                 </label>
-              </div>
+                </div>
               <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                   className="peer w-full p-4 pt-6 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder-transparent"
-                  placeholder="your.email@example.com"
-                  required
-                />
+                    placeholder="your.email@example.com"
+                    required
+                  />
                 <label className="absolute left-4 top-4 text-gray-500 text-base transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:-top-2 peer-focus:text-xs peer-focus:text-purple-600 bg-white px-1">
                   Email *
                 </label>
-              </div>
+                </div>
               <div className="relative">
-                <input
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
                   className="peer w-full p-4 pt-6 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder-transparent"
-                  placeholder="What's this about?"
-                />
+                    placeholder="What's this about?"
+                  />
                 <label className="absolute left-4 top-4 text-gray-500 text-base transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:-top-2 peer-focus:text-xs peer-focus:text-purple-600 bg-white px-1">
                   Subject
                 </label>
-              </div>
+                </div>
               <div className="relative">
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                   rows="5"
                   className="peer w-full p-4 pt-6 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all placeholder-transparent resize-none"
-                  placeholder="Your message here..."
-                  required
-                ></textarea>
+                    placeholder="Your message here..."
+                    required
+                  ></textarea>
                 <label className="absolute left-4 top-4 text-gray-500 text-base transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:-top-2 peer-focus:text-xs peer-focus:text-purple-600 bg-white px-1">
                   Message *
                 </label>
-              </div>
+                </div>
               {status.error && (
                 <motion.div
                   initial={{ opacity: 0, y: -5 }}
@@ -191,37 +191,37 @@ const Contact = () => {
                   <FiAlertCircle className="mr-2" /> {status.error}
                 </motion.div>
               )}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={status.submitting}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={status.submitting}
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-lg font-semibold flex items-center justify-center hover:shadow-lg transition-all text-lg"
-              >
-                {status.submitting ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sending...
-                  </span>
-                ) : (
-                  <>
-                    <FaPaperPlane className="mr-2" /> Send Message
-                  </>
-                )}
-              </motion.button>
-            </form>
+                >
+                  {status.submitting ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    <>
+                      <FaPaperPlane className="mr-2" /> Send Message
+                    </>
+                  )}
+                </motion.button>
+              </form>
           </motion.div>
 
           {/* Contact Info Card */}
-          <motion.div
+            <motion.div 
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 14, delay: 0.3 }}
             className="bg-gradient-to-br from-blue-600 to-purple-700 p-10 rounded-2xl text-white flex flex-col justify-center shadow-2xl relative"
-          >
+            >
             <div className="text-center mb-6">
               <FaEnvelope className="text-5xl mx-auto mb-3 opacity-90" />
               <h2 className="text-2xl font-bold mb-1">Email Us Directly</h2>
@@ -252,17 +252,17 @@ const Contact = () => {
                     title={social.label}
                   >
                     <social.icon />
-                  </motion.a>
+                </motion.a>
                 ))}
               </div>
             </div>
-            <motion.div
+              <motion.div 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
+                transition={{ delay: 0.5 }}
               className="mt-10 pt-8 border-t border-white border-opacity-20"
-            >
-              <h3 className="font-bold text-lg mb-3">What happens next?</h3>
+              >
+            <h3 className="font-bold text-lg mb-3">What happens next?</h3>
               <ul className="space-y-2 opacity-90">
                 <li className="flex items-start">
                   <span className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 text-black">1</span>
@@ -277,9 +277,9 @@ const Contact = () => {
                   <span>We solve your problem together</span>
                 </li>
               </ul>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </div>
+          </div>
       </div>
     </motion.div>
   );

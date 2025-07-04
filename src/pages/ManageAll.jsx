@@ -71,7 +71,6 @@ const ManageListingsSection = () => {
               <div className="text-sm text-gray-500 mb-2">{listing.price ? `₹${listing.price}` : listing.rentalRate ? `₹${listing.rentalRate.amount}/${listing.rentalRate.duration}` : ''}</div>
               <div className="flex gap-2 mt-auto">
                 <button onClick={() => handleMarkAsSold(listing._id)} disabled={deletingId === listing._id} className="flex-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs font-semibold">{deletingId === listing._id ? <FiLoader className="animate-spin" /> : <><FiCheckCircle className="mr-1" />Mark as Sold</>}</button>
-                <Link to={`/product/${listing._id}`} className="flex-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs font-semibold flex items-center justify-center"><FiEdit className="mr-1" />Edit</Link>
               </div>
             </div>
           ))}
@@ -144,8 +143,7 @@ const ManageRequestsSection = () => {
               <h4 className="font-semibold text-lg mb-1">{request.title}</h4>
               <div className="text-sm text-gray-500 mb-2">{request.category}</div>
               <div className="flex gap-2 mt-auto">
-                <button onClick={() => handleMarkAsFulfilled(request._id)} disabled={deletingId === request._id} className="flex-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs font-semibold">{deletingId === request._id ? <FiLoader className="animate-spin" /> : <><FiCheck className="mr-1" />Mark as Fulfilled</>}</button>
-                <Link to={`/request/${request._id}`} className="flex-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs font-semibold flex items-center justify-center"><FiEdit className="mr-1" />Edit</Link>
+                <button onClick={() => handleMarkAsFulfilled(request._id)} disabled={deletingId === request._id} className="flex-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs font-semibold">{deletingId === request._id ? <FiLoader className="animate-spin" /> : <><FiCheckCircle className="mr-1" />Mark as Fulfilled</>}</button>
               </div>
             </div>
           ))}
@@ -219,7 +217,6 @@ const ManageRoommateFinderRequestsSection = () => {
               <div className="text-sm text-gray-500 mb-2">{request.accommodationType}</div>
               <div className="flex gap-2 mt-auto">
                 <button onClick={() => handleMarkAsInactive(request._id)} disabled={deletingId === request._id} className="flex-1 px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs font-semibold">{deletingId === request._id ? <FiLoader className="animate-spin" /> : <><FiCheckCircle className="mr-1" />Mark as Inactive</>}</button>
-                <Link to={`/roommate-finder/${request._id}`} className="flex-1 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs font-semibold flex items-center justify-center"><FiEdit className="mr-1" />Edit</Link>
               </div>
             </div>
           ))}
